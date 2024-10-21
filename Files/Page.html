@@ -1,0 +1,1670 @@
+<!DOCTYPE html>
+<html lang="en">
+<meta charset="UTF-8">
+<meta name="viewport" content="width = device-width, initial-scale = 1.0">
+<title>
+    Programe su cita
+</title>
+<style>
+    /* Clase dinámica */
+    .borderTable {
+        width: 43%;
+        margin: 0;
+    }
+    /* Body y linea de separación */
+    body {
+        font-family: Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 1.063em;
+        margin: 0;
+        padding: 0;
+    }
+    hr {
+        width: 70%;
+        margin-top: 2%;
+    }
+    /* Contenedores generales */
+    .titlesLevel {
+        width: 70%;
+        margin-left: 15%;
+    }
+    .firstFormLevel {
+        display: grid;
+        place-items: center;
+        width: 100%;
+        height: 100%;
+    }
+    .secondFormLevel {
+        width: 70%;
+        height: 100%;
+        margin-bottom: 20px;
+    }
+    .thirdFormLevelRight {
+        width: 357px;
+        height: 50px;
+        float: right;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        margin-right: 5%;
+    }
+    .thirdFormLevelLeft {
+        width: 357px;
+        height: 50px;
+        float: left;
+        display: flex;
+        position: relative;
+        overflow: hidden;
+        margin-left: 5%;
+    }
+    #panelModalities {
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        justify-content: center;
+        margin-bottom: 10px;
+    }
+    .secondFormLevelModalities {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+        margin-left: 3%;
+        gap: 3%;
+    }
+    .scheduleNavigationButtons, .submitButton {
+        width: 70%;
+        height: 100%;
+        margin: 0;
+    }
+    .legalPanel {
+        position: relative;
+        text-align: justify;
+        float: left;
+        margin-left: 100px;
+        width: 450px;
+        height: 100%;
+        font-size: 0.688rem;
+    }
+    .containerLoader {
+        display: none;
+        position: fixed;
+        justify-content: center;
+        align-items: center;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.5);
+        z-index: 1;
+    }
+    .modalContainer {
+        background-color: #fff;
+        width: 470px;
+        height: 205px;
+        margin: 190px auto;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .successModalContainer {
+        float: center;
+        background-color: #fff;
+        width: 600px;
+        margin: 190px auto;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .successModalContainer p {
+        text-align: center;
+    }
+    /* Textos */
+    p {
+        text-align: justify;
+    }
+    h1 {
+        margin-top: 5%;
+    }
+    h2 {
+        margin-top: 30px;
+        margin-left: 0;
+        margin-bottom: 20px;
+    }
+    h3 {
+        margin-top: 0px;
+        margin-left: 0;
+    }
+    .serviceText {
+        width: 460px;
+        text-align: justify;
+    }
+    .textAuthorization {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+    .linkAuthorization {
+        font-weight: bold;
+        color: #6a9000;
+    }
+    .textQuestions {
+        font-size: 1rem;
+        margin-top: 0;
+    }
+    .textPreviousWeekButton {
+        position: absolute;
+        right: 10%;
+        transition: .4s ease-in-out all;
+    }
+    /* Elementos necesarios */
+    .shield {
+        width: 460px;
+        margin-top: 20px;
+        margin-left: 5px;
+        margin-right: 5px;
+        float: right;
+    }
+    .greenCircle, .purpleCircle {
+        display: inline-block;
+        height: 20px;
+        width: 20px;
+        background-color: yellowgreen;
+        border-radius: 50%;
+    }
+    .purpleCircle {
+        background-color: #a364b6;
+    }
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    .loader {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border: 5px solid #26a69a;
+        border-top-color: transparent;
+        animation: spin 1.2s linear infinite;
+    }
+    /* Botones */
+    #previousWeekButton {
+        overflow: hidden;
+        margin-top: 20px;
+        margin-left: 22%;
+        float: left;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 190px;
+        height: 30px;
+        background-color: #414141;
+        color: white;
+        font-size: 0.938rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s ease all;
+        border-radius: 5px;
+        border: 0px;
+        position: relative;
+    }
+    .iconPreviousWeekButton {
+        display: flex;
+        align-items: center;
+        position: absolute;
+        z-index: 2;
+        left: 60px;
+        transition: 0.3s ease-in-out all;
+        opacity: 0;
+    }
+    .iconPreviousWeekButton .svgPreviousWeekButton {
+        color: white;
+        width: 28px;
+        height: 28px;
+    }
+    #previousWeekButton:hover .iconPreviousWeekButton {
+        left: 1%;
+        opacity: 1;
+    }
+    #previousWeekButton:hover .textPreviousWeekButton {
+        right: 5%;
+    }
+    #previousWeekButton:hover, #nextWeekButton:hover {
+        background: #26a69a;
+    }
+    #nextWeekButton {
+        overflow: hidden;
+        margin-top: 20px;
+        margin-right: 22%;
+        float: right;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 190px;
+        height: 30px;
+        background-color: #414141;
+        color: white;
+        font-size: 0.938rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s ease all;
+        border-radius: 5px;
+        border: 0px;
+        position: relative;
+    }
+    .textNextWeekButton {
+        position: absolute;
+        left: 10%;
+        transition: .4s ease-in-out all;
+    }
+    .iconNextWeekButton {
+        display: flex;
+        align-items: center;
+        position: absolute;
+        z-index: 2;
+        left: 100px;
+        transition: 0.3s ease-in-out all;
+        opacity: 0;
+    }
+    .iconNextWeekButton .svgNextWeekButton {
+        color: white;
+        width: 28px;
+        height: 28px;
+    }
+    #nextWeekButton:hover .iconNextWeekButton {
+        left: 85%;
+        opacity: 1;
+    }
+    #nextWeekButton:hover .textNextWeekButton {
+        left: 5%;
+    }
+    #sendRequestButton {
+        width: 150px;
+        height: 45px;
+        margin-top: 45px;
+        margin-right: 120px;
+        position: relative;
+        background: #414141;
+        float: right;
+        color: white;
+        font-size: 0.938rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s ease all;
+        border-radius: 5px;
+        border: 0px;
+    }
+    #sendRequestButton:hover {
+        background: #26a69a;
+    }
+    /* Inputs */
+    .inputImage {
+        height: 27px;
+        margin-left: 0px;
+        margin-top: 20px;
+        transition: 0.3s ease-in-out all;
+        filter: invert(10%) sepia(7%) saturate(9%) hue-rotate(316deg) brightness(101%) contrast(93%);
+    }
+    input[type=number]::-webkit-inner-spin-button, input[type=number]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+    input[type=number] {
+        -moz-appearance: textfield;
+    }
+    .inputClass {
+        font-size: 0.938rem;
+        padding-left: 45px;
+        padding-top: 7px;
+        background: none;
+        width: 312px;
+        border: 0px;
+        height: 100%;
+        float: right;
+        position: absolute;
+        outline: 0px;
+        vertical-align: bottom;
+    }
+    .labelInput {
+        margin-left: 40px;
+        float: right;
+        font-size: 0.875rem;
+        position: absolute;
+        background: none;
+        bottom: 0;
+        left: 0;
+        width: 330px;
+        height: 100%;
+        pointer-events: none;
+        border-bottom: 1px solid rgb(150, 150, 150);
+    }
+    .labelInput:after {
+        float: right;
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 330px;
+        height: 100%;
+        border-bottom: 2px solid #26a69a;
+        transform: translateX(150%);
+        transition: 0.3s ease-in-out all;
+    }
+    .textLabelInput {
+        float: right;
+        background: none;
+        position: absolute;
+        margin-bottom: 1%;
+        bottom: 5px;
+        left: 0;
+        transition: 0.3s ease-in-out all;
+        color: gray;
+    }
+    .inputClass:focus + .containerInputImage .labelInput .textLabelInput {
+        transform: translateY(-150%);
+        color: #26a69a;
+    }
+    .inputClass:valid + .containerInputImage .labelInput .textLabelInput {
+        transform: translateY(-150%);
+        color: #6a9000;
+    }
+    .inputClass:invalid:focus + .containerInputImage .labelInput .textLabelInput {
+        transform: translateY(-150%);
+        color: #26a69a;
+    }
+    .wrongInput {
+        transform: translateY(-150%);
+        color: red;
+    }
+    .wrongInputImage {
+        filter: invert(25%) sepia(97%) saturate(7077%) hue-rotate(356deg) brightness(115%) contrast(122%);
+    }
+    .inputClass:focus + .containerInputImage .inputImage {
+        filter: invert(48%) sepia(77%) saturate(371%) hue-rotate(125deg) brightness(97%) contrast(96%);
+    }
+    .inputClass:valid + .containerInputImage .inputImage {
+        filter: invert(48%) sepia(96%) saturate(2464%) hue-rotate(48deg) brightness(92%) contrast(103%);
+    }
+    .inputClass:focus + .containerInputImage .labelInput::after {
+        transform: translate(0%);
+    }
+    .inputClass:valid + .containerInputImage .labelInput::after {
+        transform: translate(0%);
+        border-bottom: 1px solid #6a9000;
+    }
+    select {
+        font-size: 0.938rem;
+        margin-left: 40px;
+        padding-left: 4px;
+        padding-bottom: 7px;
+        background: none;
+        position: absolute;
+        width: 317px;
+        height: 70px;
+        border: 1px solid #ffff;
+        outline: 0px;
+        background-position: right center;
+        background-repeat: no-repeat;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+    }
+    select:focus + .containerInputImage .labelInput .textLabelInput {
+        transform: translateY(-150%);
+        color: #26a69a;
+    }
+    select:focus + .containerInputImage .labelInput::after {
+        transform: translate(0%);
+    }
+    select:focus + .containerInputImage .inputImage {
+        filter: invert(48%) sepia(77%) saturate(371%) hue-rotate(125deg) brightness(97%) contrast(96%);
+    }
+    select:valid + .containerInputImage .labelInput .textLabelInput {
+        transform: translateY(-150%);
+        color: #6a9000;
+    }
+    select:focus + .containerInputImage .labelInput::after {
+        transform: translate(0%);
+    }
+    select:valid:valid + .containerInputImage .labelInput::after {
+        transform: translate(0%);
+        border-bottom: 1px solid #6a9000;
+    }
+    select:valid + .containerInputImage .inputImage {
+        filter: invert(48%) sepia(96%) saturate(2464%) hue-rotate(48deg) brightness(92%) contrast(103%);
+    }
+    option {
+        text-align: left;
+        color: #26a69a;
+    }
+    /* Estilos horario */
+    table {
+        border-spacing: 1px;
+        margin: 0px;
+    }
+    th, td {
+        width: 85px;
+        height: 25px;
+        text-align: center;
+        font-size: 0.813rem;
+        padding-left: 3px;
+        padding-right: 3px;
+    }
+    .tdHidden {
+        display: none;
+    }
+    .freeDateVirtual {
+        width: 100%;
+        height: 30px;
+        overflow: hidden;
+        border-radius: 10px;
+        display: flex;
+        font-size: 0.875rem;
+        text-shadow: 0 0 3px black;
+        font-weight: bold;
+        color: white;
+        background: greenyellow;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+    }
+    .freeDateFace {
+        width: 100%;
+        height: 30px;
+        overflow: hidden;
+        border-radius: 10px;
+        display: flex;
+        font-size: 0.875rem;
+        text-shadow: 0 0 3px black;
+        font-weight: bold;
+        color: white;
+        background: #a364b6;
+        cursor: pointer;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+    }
+    .busyDate {
+        color: grey;
+        text-align: center;
+        font-size: 0.875rem;
+        text-align: center;
+        padding: 5px;
+        border-radius: 6px;
+    }
+    .freeDateVirtual::before, .freeDateFace::before {
+        content: "Su cita";
+        position: absolute;
+        left: calc(-110%);
+        transition: .3s ease-in-out all;
+        z-index: 2
+    }
+    .freeDateVirtual::after, .freeDateFace::after {
+        display: grid;
+        align-items: center;
+        font-size: 0.938rem;
+        content: "";
+        width: 100%;
+        border-bottom: 30px solid #26a69a;
+        border-right: 30px solid transparent;
+        position: absolute;
+        z-index: 1;
+        left: calc(-100% - 30px);
+        transition: .3s ease-in-out all;
+    }
+    .radioClass {
+        width: 0px;
+        position: absolute;
+    }
+    .radioClass:checked + .freeDateVirtual, .radioClass:checked + .freeDateFace {
+        background: #26a69a;
+    }
+    .freeDateVirtual:hover::after, .freeDateFace:hover::after,
+    .radioClass:checked + .freeDateVirtual::after, .radioClass:checked + .freeDateFace::after {
+        left: 0;
+    }
+    .freeDateVirtual:hover::before, .freeDateFace:hover::before,
+    .radioClass:checked + .freeDateVirtual::before, .radioClass:checked + .freeDateFace::before {
+        left: 23.4%;
+    }
+    /* Modals */
+    .modalClass {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+    }
+    .modalText {
+        font-weight: bold;
+        text-align: center;
+        font-size: 1.438rem;
+        color: #26a69a;
+        margin: 0;
+    }
+    .datumModalVerification, #hourModalVerification {
+        font-size: 1rem;
+    }
+    .datumModalVerification {
+        font-weight: bold;
+    }
+    #confirmModalVerification {
+        font-weight: bold;
+        text-shadow: 0 0 3px black;
+        float: left;
+        cursor: pointer;
+        color: #fff;
+        width: 100px;
+        height: 25px;
+        font-size: 1.063rem;
+        margin-left: 70px;
+        background-color: #414141;
+        border-radius: 5px;
+        margin-top: 5px;
+        border: 0;
+        transition: 0.3s ease-in-out all;
+    }
+    #cancelModalVerification {
+        font-weight: bold;
+        text-shadow: 0 0 3px black;
+        float: right;
+        cursor: pointer;
+        width: 100px;
+        height: 25px;
+        font-size: 1.063rem;
+        color: #fff;
+        margin-right: 70px;
+        margin-top: 5px;
+        background-color: #414141;
+        border-radius: 5px;
+        border: 0;
+        transition: 0.3s ease-in-out all;
+    }
+    #confirmModalVerification:hover {
+        background: greenyellow;
+    }
+    #cancelModalVerification:hover {
+        background: red;
+    }
+    .requestCase {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1;
+    }
+    .longIssueCase {
+        text-align: center;
+        background-color: #ffff;
+        width: 400px;
+        height: 165px;
+        margin: 190px auto;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .shortIssueCase {
+        text-align: center;
+        background-color: #ffff;
+        width: 400px;
+        height: 125px;
+        margin: 190px auto;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .acceptCaseButton {
+        font-weight: bold;
+        text-shadow: 0 0 3px black;
+        float: center;
+        cursor: pointer;
+        color: #fff;
+        width: 100px;
+        height: 25px;
+        font-size: 1.063rem;
+        background-color: #414141;
+        border-radius: 5px;
+        margin-top: 15px;
+        border: 0;
+        transition: 0.3s ease-in-out all;
+    }
+    .acceptCaseButton:hover {
+        background: greenyellow;
+    }
+    #requestCase6 {
+        display: none;
+        justify-content: center;
+        align-items: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: white;
+        z-index: 1;
+    }
+    .successModalButton {
+        display: grid;
+        align-items: center;
+        font-weight: bold;
+        text-shadow: 0 0 3px black;
+        float: center;
+        cursor: pointer;
+        color: #fff;
+        width: 100px;
+        height: 30px;
+        font-size: 1.063rem;
+        background-color: #414141;
+        border-radius: 5px;
+        margin-left: 41.667%;
+        border: 0;
+        transition: 0.3s ease-in-out all;
+    }
+    .successModalButton:hover {
+        background: greenyellow;
+    }
+    .datumPenalty {
+        font-weight: bold;
+    }
+    @media (max-width: 1000px) {/* Celulares */
+        body {
+            font-size: 2em;
+            margin: 0;
+            padding: 0;
+        }
+        .shield {
+            width: 100%;
+            margin: 0;
+            margin-top: 20px;
+        }
+        .firstFormLevel, .titlesLevel {
+            display: grid;
+            place-items: center;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .titlesLevel {
+            width: 96%;
+            margin-left: 2%;
+            margin-right: 2%;
+        }
+        .secondFormLevel {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .thirdFormLevelLeft, .thirdFormLevelRight {
+            width: 90%;
+            height: 110px;
+            overflow: hidden;
+            margin: 0;
+            margin-left: 5%;
+            margin-right: 5%;
+            margin-bottom: 40px;
+            padding: 0;
+        }
+        .serviceText {
+            display: grid;
+            place-items: center;
+            width: auto;
+            margin: 0;
+            padding: 0;
+        }
+        .inputImage {
+            height: 70px;
+            margin: 0;
+            margin-top: 35px;
+        }
+        .inputClass {
+            font-size: 2.3rem;
+            padding-left: 100px;
+            padding-top: 12px;
+            width: 90%;
+            height: 100%;
+        }
+        .labelInput {
+            margin-left: 100px;
+            float: right;
+            font-size: 2rem;
+            position: absolute;
+            background: none;
+            bottom: 0;
+            left: 0;
+            width: 800px;
+            height: 100%;
+            pointer-events: none;
+            border-bottom: 2px solid rgb(150, 150, 150);
+        }
+        .labelInput:after {
+            width: 800px;
+            border-bottom: 4px solid #26a69a;
+        }
+        .textLabelInput {
+            float: right;
+            background: none;
+            position: absolute;
+            margin-bottom: 1%;
+            bottom: 5px;
+            left: 0;
+            transition: 0.3s ease-in-out all;
+            color: gray;
+        }
+        select {
+            font-size: 2.3rem;
+            padding-left: 55px;
+            padding-top: 30px;
+            width: 90%;
+            height: 100%;
+        }
+        .wrongInput {
+            transform: translateY(-150%);
+            color: red;
+        }
+        .textQuestions {
+            font-size: 2.3rem;
+            margin-top: 0;
+            border: 0;
+            margin: 0;
+        }
+        th, .tdVisible {
+            width: 140px;
+            height: 85px;
+            font-size: 1.5rem;
+        }
+        .freeDateVirtual, .freeDateFace {
+            height: 65px;
+            font-size: 1.6rem;
+            text-shadow: 0 0 8px black;
+        }
+        .busyDate {
+            font-size: 1.7rem;
+        }
+        table {
+            border-spacing: 5px;
+            margin: 0px;
+        }
+        .borderTable {
+            width: 96%;
+            background-color: rgb(150, 150, 150);
+            height: 1px;
+        }
+        .freeDateVirtual::after, .freeDateFace::after {
+            border-bottom: 65px solid #26a69a;
+        }
+        .modalContainer {
+            position: absolute;
+            top: 35%;
+            left: 12.5%;
+            width: 75%;
+            height: 290px;
+        }
+        .modalText {
+            font-weight: bold;
+            text-align: center;
+            font-size: 2rem;
+            color: #26a69a;
+            margin: 0;
+        }
+        #cancelModalVerification, #confirmModalVerification,
+        .acceptCaseButton, .successModalButton {
+            width: 20%;
+            height: 40px;
+            font-size: 1.7rem;
+        }
+        .datumModalVerification {
+            font-size: 1.7rem;
+            font-weight: bold;
+        }
+        #mailVerification, #dateVerification, #hourModalVerification {
+            font-size: 1.5rem;
+        }
+        .scheduleNavigationButtons {
+            display: flex;
+            place-items: center;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .submitButton {
+            display: grid;
+            place-items: center;
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        #nextWeekButton {
+            width: 300px;
+            height: 60px;
+            font-size: 1.6rem;
+            margin: 0;
+            margin-top: 20px;
+            margin-left: 10%;
+            margin-right: 10%;
+        }
+        #previousWeekButton {
+            width: 300px;
+            height: 60px;
+            font-size: 1.6rem;
+            margin: 0;
+            margin-top: 20px;
+            margin-right: 10%;
+            margin-left: 10%;
+        }
+        #nextWeekButton:hover {
+            background: #26a69a;
+        }
+        .svgNextWeekButton, .svgPreviousWeekButton {
+            display: none;
+        }
+        .textNextWeekButton, .textPreviousWeekButton {
+            all: unset;
+        }
+        #previousWeekButton:hover {
+            background: #26a69a;
+        }
+        hr {
+            width: 96%;
+            background-color: rgb(150, 150, 150);
+            margin-top: 2%;
+            height: 1px;
+        }
+        #sendRequestButton {
+            width: 250px;
+            height: 80px;
+            font-size: 1.8rem;
+            margin: 0;
+        }
+        #sendRequestButton:hover {
+            background: #26a69a;
+        }
+        .legalPanel {
+            width: 90%;
+            height: 100%;
+            font-size: 1.5rem;
+            margin: 0;
+            margin-left: 5%;
+            margin-right: 5%;
+        }
+        .textAuthorization {
+            margin: 0;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .linkAuthorization {
+            font-weight: bold;
+            color: #6a9000;
+        }
+        .shortIssueCase {
+            position: absolute;
+            width: 60%;
+            height: 250px;
+            top: 35%;
+            left: 20%;
+        }
+        .longIssueCase {
+            position: absolute;
+            width: 65%;
+            height: 280px;
+            top: 30%;
+            left: 17.5%;
+        }
+    }
+</style>
+<body>
+    <div class="titlesLevel">
+        <img src="https://i.ibb.co/8s63dPJ/escudo-Unal.png" class="shield">
+        <div class="serviceText">
+            <h1>Solicitud de cita</h1>
+            <p>Programe su cita con el servicio<span id='serviceText'></span>.</p>
+        </div>
+    </div>
+    <hr>
+    <form id="form">
+        <div class="titlesLevel">
+            <h2>Información personal</h2>
+        </div>
+        <div class="firstFormLevel">
+            <div class="secondFormLevel">
+                <div class="thirdFormLevelLeft">
+                    <input class="inputClass" type="text" id="name" required>
+                    <div class="containerInputImage">
+                        <img src="https://i.ibb.co/3FyQn1M/nombre.png" class="inputImage">
+                        <label for="name" class="labelInput">
+                            <span class="textLabelInput">Nombre completo</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="thirdFormLevelRight">
+                    <input type="email" class="inputClass" id="mail" onkeyup="mailTest()" required>
+                    <div class="containerInputImage">
+                        <img src="https://i.ibb.co/xsv29Xw/correo.png" class="inputImage" id="imgMail">
+                        <label for="mail" class="labelInput">
+                            <span class="textLabelInput" id="textMail">Correo institucional (ejemplo@unal.edu.co)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="secondFormLevel">
+                <div class="thirdFormLevelLeft">
+                    <select id="typeID" required>
+                        <option value="" disabled selected style="display:none;"></option>
+                        <option>Cédula de ciudadanía</option>
+                        <option>Cédula de extranjería</option>
+                        <option>Tarjeta de identidad</option>
+                        <option>Pasaporte</option>
+                    </select>
+                    <div class="containerInputImage">
+                        <img src="https://i.ibb.co/vD2zvYw/Tipo-de-doc.png" class="inputImage">
+                        <label for="typeID" class="labelInput">
+                            <span class="textLabelInput">Tipo de documento de identidad</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="thirdFormLevelRight">
+                    <input class="inputClass" type="number" id="numberID" required>
+                    <div class="containerInputImage">
+                        <img src="https://i.ibb.co/NNvvN3N/numero.png" class="inputImage">
+                        <label for="numberID" class="labelInput">
+                            <span class="textLabelInput">Número de identificación</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="secondFormLevel">
+                <div class="thirdFormLevelLeft">
+                    <input class="inputClass" type="number" id="phone" required>
+                    <div class="containerInputImage">
+                        <img src="https://i.ibb.co/jgBNbFG/telefono.png" class="inputImage">
+                        <label for="phone" class="labelInput">
+                            <span class="textLabelInput">Teléfono</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="thirdFormLevelRight">
+                    <select id="link" required>
+                        <option value="" disabled selected style="display:none;"></option>
+                        <option value=1>Docente</option>
+                        <option value=2>Estudiante de pregrado</option>
+                        <option value=3>Estudiante de especialización</option>
+                        <option value=4>Estudiante de maestría</option>
+                        <option value=5>Estudiante de doctorado</option>
+                        <option value=6>Administrativo - OPS</option>
+                    </select>
+                    <div class="containerInputImage">
+                        <img src="https://i.ibb.co/bsrLcbg/tipo.png" class="inputImage">
+                        <label for="link" class="labelInput">
+                            <span class="textLabelInput">Tipo de vinculación con la Facultad de Ingeniería</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div id="containerDepartment" class="secondFormLevel" style="display:none;">
+                <div class="thirdFormLevelRight">
+                    <select id="department" required></select>
+                    <div class="containerInputImage">
+                        <img src="https://i.ibb.co/QDYJLbN/departamento.png" class="inputImage">
+                        <label for="department" class="labelInput">
+                            <span class="textLabelInput">Departamento o Programa</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <section id="serviceSection"><!-- Contenedor del servicio --></section>
+        <div class="titlesLevel">
+            <h2>Fecha de la cita</h2>
+        </div>
+        <div class="firstFormLevel" id="panelModalities">
+            <p id="virtualModality" class="secondFormLevelModalities"><span class="greenCircle"></span>Virtual</p>
+            <p id="faceModality" class="secondFormLevelModalities"><span class="purpleCircle"></span>Presencial
+            </p>
+        </div>
+        <div class="firstFormLevel" id="schedule">
+            <table>
+                <tr id="dates">
+                    <th>Fecha</th>
+                </tr>
+                <tr id="days">
+                    <th>Hora</th>
+                </tr>
+            </table>
+            <hr class="borderTable">
+        </div>
+        <div class="firstFormLevel">
+            <div class="scheduleNavigationButtons">
+                <button type="button" id="previousWeekButton" onclick="previousWeek()">
+                    <div class="iconPreviousWeekButton">
+                        <svg class="svgPreviousWeekButton" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
+                        </svg>
+                    </div>
+                    <span class="textPreviousWeekButton">ANTERIOR SEMANA</span>
+                </button>
+                <button type="button" id="nextWeekButton" onclick="nextWeek()">
+                    <div class="iconNextWeekButton">
+                        <svg class="svgNextWeekButton" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
+                        </svg>
+                    </div>
+                    <span class="textNextWeekButton">SIGUIENTE SEMANA</span>
+                </button>
+            </div>
+        </div>
+        <div class="firstFormLevel">
+            <div class="submitButton">
+                <div class="legalPanel">
+                    <p class="textAuthorization">
+                        Al diligenciar este formulario autoriza a la Universidad Nacional de
+                        Colombia para la recolección, el almacenamiento y el uso de los datos registrados, para obtener
+                        información relacionada con los procesos de autoevaluación que se llevan a cabo en la
+                        Institución.
+                        <br><br>
+                        Tenga en cuenta que la información suministrada es confidencial y los datos de carácter
+                        personal recolectados se encuentran bajo medidas que garantizan la seguridad, confidencialidad e
+                        integridad, y su tratamiento se realiza bajo la Política de Tratamiento de Datos Personales de
+                        la Universidad Nacional de Colombia, la cual podrá consultar en el siguiente enlace
+                        <a class="linkAuthorization" href="http://www.legal.unal.edu.co/rlunal/home/doc.jsp?d_i = 97992"
+                            target="_blank">Política de Tratamiento de Datos Personales</a>.
+                    </p>
+                </div>
+                <input id="sendRequestButton" type="submit" value="SOLICITAR CITA">
+            </div>
+        </div>
+    </form>
+    <div id="verificationModal" class="modalClass">
+        <div class="modalContainer">
+            <p class="modalText">Para finalizar la reserva, por favor verifique su correo electrónico y la fecha de su
+                cita</p>
+            <p>
+                <span class="datumModalVerification">Correo electrónico:</span>
+                <span id="mailVerification"></span>
+            </p>
+            <p>
+                <span class="datumModalVerification">Fecha cita:</span>
+                <span id="dateVerification"></span>
+                <span id="hourModalVerification">(Hora Colombia, GMT-5)</span>
+            </p>
+            <button id="confirmModalVerification">Aceptar</button>
+            <button id="cancelModalVerification">Cancelar</button>
+        </div>
+    </div>
+    <hr>
+    <div class="titlesLevel">
+        <h3>Contacto</h3>
+        <p class="textQuestions">
+            ¿Tuvo inconvenientes? ¿Tiene comentarios? Remítase a la Vicedecanatura de Investigación y Extensión a través
+            de los siguientes canales:
+            <a href="mailto:vinnyext_fibog@unal.edu.co">vinnyext_fibog@unal.edu.co</a> | Ext. 13573.
+        </p>
+    </div>
+    <div id="waiter" class="containerLoader">
+        <div class="loader"></div>
+    </div>
+    <div id="requestCase0" class="requestCase">
+        <div class="shortIssueCase">
+            <p class="modalText">Hubo un inconveniente</p>
+            <br>
+            <span>Lo sentimos, este horario ya no está disponible.</span>
+            <br>
+            <button id="requestCaseButton0" class="acceptCaseButton">Aceptar</button>
+        </div>
+    </div>
+    <div id="requestCase1" class="requestCase">
+        <div class="shortIssueCase">
+            <p class="modalText">Hubo un inconveniente</p>
+            <br>
+            <span>Debido a su historial de inasistencias, no es posible programar una cita a su nombre.</span>
+            <br>
+            <button id="requestCaseButton1" class="acceptCaseButton">Aceptar</button>
+        </div>
+    </div>
+    <div id="requestCase2" class="requestCase">
+        <div class="longIssueCase">
+            <p class="modalText">Hubo un inconveniente</p>
+            <br>
+            <span>
+                Usted está sancionado desde el día
+                <span id="datePenaltyPanel" class="datumPenalty"></span>
+                por no haber asistido a la cita programada. Por lo tanto, tendrá que esperar
+                <span id="daysPenaltyPanel" class="datumPenalty"></span>
+                días para volver a pedir una cita.
+            </span>
+            <br>
+            <button id="requestCaseButton2" class="acceptCaseButton">Aceptar</button>
+        </div>
+    </div>
+    <div id="requestCase3" class="requestCase">
+        <div class="shortIssueCase">
+            <p class="modalText">Hubo un inconveniente</p>
+            <br>
+            <span>Usted ya tiene una cita programada, no podrá solicitar otra hasta cumplirla.</span>
+            <br>
+            <button id="requestCaseButton3" class="acceptCaseButton">Aceptar</button>
+        </div>
+    </div>
+    <div id="requestCase4" class="requestCase">
+        <div class="shortIssueCase">
+            <p class="modalText">Hubo un inconveniente</p>
+            <br>
+            <span>Recientemente canceló una cita. Podrá solicitar una nueva cita en un lapso de 15 minutos.</span>
+            <br>
+            <button id="requestCaseButton4" class="acceptCaseButton">Aceptar</button>
+        </div>
+    </div>
+    <div id="requestCase5" class="requestCase">
+        <div class="shortIssueCase">
+            <p class="modalText">Hubo un inconveniente</p>
+            <br>
+            <span>Por favor consulte los términos del servicio, no es posible agendar más de una cita el mismo dia.</span>
+            <br>
+            <button id="requestCaseButton5" class="acceptCaseButton">Aceptar</button>
+        </div>
+    </div>
+    <div id="requestCase6">
+        <div class="successModalContainer">
+            <p class="modalText">Su cita ha sido agendada</p>
+            <p class="pf">
+                Le hemos enviado una invitación por correo electrónico, podría tomar unos minutos en llegar a
+                su bandeja de entrada, deberá aceptarla. Si en algún momento necesita cancelarla, puede hacerlo
+                rechazando la invitación.
+            </p>
+            <p class="pf">Recuerde que todas nuestras citas son virtuales.</p>
+            <p class="pf">Para garantizar el éxito de su cita, le recomendamos revisar detenidamente los términos del
+                servicio.</p>
+            <button id="requestCaseButton6" class="successModalButton">Finalizar</button>
+        </div>
+    </div>
+</body>
+<script>
+    //Horario de atención
+    const url = 'https://script.google.com/macros/s/AKfycbx6jUlznOmIFsW-o9qZGUXJIMCvVznsQbYa4uHIGWlfBAjwyf26ozm9uU6xk_6mggB0Ow/exec'
+    fillTextService()
+    const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
+    const serviceText = document.getElementById('serviceText')
+    const divTable = document.getElementById('schedule')
+    const daysRow = document.getElementById('days')
+    const dates = document.getElementById('dates')
+    //Botones
+    const previousWeekButton = document.getElementById('previousWeekButton')
+    previousWeekButton.disabled = true
+    const nextWeekButton = document.getElementById('nextWeekButton')
+    const sendRequestButton = document.getElementById('sendRequestButton')
+    const confirmModalVerification = document.getElementById("confirmModalVerification")
+    //Elementos formulario
+    const panelModalities = document.getElementById('panelModalities')
+    panelModalities.style.display = 'none'
+    const virtualModality = document.getElementById('virtualModality')
+    virtualModality.style.display = 'none'
+    const faceModality = document.getElementById('faceModality')
+    faceModality.style.display = 'none'
+    const form = document.getElementById('form')
+    const typeID = document.getElementById('typeID')
+    const numberID = document.getElementById('numberID')
+    const verificationModal = document.getElementById('verificationModal')
+    const loader = document.getElementById('waiter')
+    const mail = document.getElementById('mail')
+    const name = document.getElementById('name')
+    const phone = document.getElementById('phone')
+    const link = document.getElementById('link')
+    const containerDepartment = document.getElementById('containerDepartment')
+    const department = document.getElementById('department')
+    const groupName = document.getElementById('groupName')
+    const groupCode = document.getElementById('groupCode')
+    const serviceSection = document.getElementById('serviceSection')
+    const mailVerification = document.getElementById('mailVerification')
+    const dateVerification = document.getElementById('dateVerification')
+    const borderWidths = ['14%', '21%', '29%', '36%', '43%']
+    const noValidMailText = 'Solo correos pertenecientes a la Universidad Nacional de Colombia\n ejemplo@unal.edu.co'
+    const textMail = document.getElementById('textMail')
+    const imgMail = document.getElementById('imgMail')
+    const requestCases = getRequestCases(false)
+    const requestCaseButtons = getRequestCases(true)
+    const datePenaltyPanel = document.getElementById('datePenaltyPanel')
+    const daysPenaltyPanel = document.getElementById('daysPenaltyPanel')
+    const cancelModalVerification = document.getElementById('cancelModalVerification')
+    //Variables útiles
+    var refresh = setInterval(fillSchedule, 1 * 60 * 1000)
+    var week = 0
+    var hours
+    var serviceSchedule
+    var numDays
+    var slots
+    var elements
+    var fullDate
+    var formData
+    var serviceData
+    //Funciones
+    createWholeServiceSection()
+    function getRequestCases(which) {
+        const casesArray = []
+        const isButton = which ? 'Button' : ''
+        for (let index = 0; index <= 6; index++) {
+            const requestCaseItem = document.getElementById(`requestCase${isButton}${index}`)
+            casesArray.push(requestCaseItem)
+        }
+        return casesArray
+    }
+    function fillTextService() {//Titulo del servicio
+        fetch(url).then(response => response.json()).then(data => serviceText.textContent = ` de ${data}`)
+    }
+    function createWholeServiceSection() {//Datos del servicio y del horario
+        fetch(`${url}?action=2`).then(response => response.json()).then(data => {//Obtener JSON
+            hours = data[0]
+            slots = hours.length
+            serviceSchedule = data[1]
+            caseOfModality(data[2])
+            numDays = serviceSchedule.length
+            document.styleSheets[0].cssRules[0].style.width = borderWidths[numDays - 1]
+            elements = data[4]
+            createServiceSection(data[3], elements)
+            createTable(hours)
+        })
+    }
+    function caseOfModality(caseNumber) {//Panel de modalidades 🟣🟢
+        switch (caseNumber) {
+            case 1://Solo virtual
+                virtualModality.style.display = ''
+                break
+            case 2://Solo presencial
+                faceModality.style.display = ''
+                break
+            case 3://Híbrido
+                virtualModality.style.display = ''
+                faceModality.style.display = ''
+                break
+        }
+        panelModalities.style.display = ''
+    }
+    function createServiceSection(sectionTitle, elements) {
+        const titleContainer = document.createElement('div')
+        serviceSection.appendChild(titleContainer)
+        titleContainer.classList.add('titlesLevel')
+        const h2 = document.createElement('h2')
+        h2.textContent = sectionTitle
+        titleContainer.appendChild(h2)
+        const firstFormLevel = document.createElement('div')
+        serviceSection.appendChild(firstFormLevel)
+        firstFormLevel.classList.add('firstFormLevel')
+        const lastSecond = Math.ceil(elements.length / 2)
+        for (let indexSecond = 0; indexSecond < lastSecond; indexSecond++) {
+            const secondFormLevel = document.createElement('div')
+            firstFormLevel.appendChild(secondFormLevel)
+            secondFormLevel.classList.add('secondFormLevel')
+            const lastElement = indexSecond == lastSecond - 1 ? elements.length - 1 : indexSecond * 2 + 1
+            for (let indexElement = indexSecond * 2; indexElement <= lastElement; indexElement++) {
+                const thirdFormLevelClass = (indexElement + 1) % 2 == 0 ? 'thirdFormLevelRight' : 'thirdFormLevelLeft'
+                const [name, urlImg, id, inputType, options, dependsInfo, valueTest, alertText, emptyTest] = elements[indexElement]
+                const elementType = inputType == 'select' ? inputType : 'input'
+                const thirdLevel = document.createElement('div')
+                secondFormLevel.appendChild(thirdLevel)
+                thirdLevel.classList.add(thirdFormLevelClass)
+                const input = document.createElement(elementType)
+                thirdLevel.appendChild(input)
+                input.id = id
+                const containerImage = document.createElement('div')
+                thirdLevel.appendChild(containerImage)
+                containerImage.classList.add('containerInputImage')
+                const img = document.createElement('img')
+                containerImage.appendChild(img)
+                img.src = urlImg
+                img.classList.add('inputImage')
+                const label = document.createElement('label')
+                containerImage.appendChild(label)
+                label.classList.add('labelInput')
+                label.htmlFor = id
+                const span = document.createElement('span')
+                label.appendChild(span)
+                span.classList.add('textLabelInput')
+                span.textContent = name
+                if (elementType != 'select') {
+                    input.type = inputType
+                    input.classList.add('inputClass')
+                }
+                if (options.length > 1) {
+                    options.unshift('')
+                    options.forEach(function (option) {//Añadir opciones
+                        const newOption = document.createElement('option')
+                        newOption.text = option
+                        input.add(newOption)
+                    })
+                    input.options[0].style.display = 'none'
+                }
+                if (emptyTest) {
+                    emptyTestFunction(input)
+                    input.addEventListener('keyup', () => emptyTestFunction(input))
+                }
+                if (valueTest) createTest(input, valueTest, alertText)
+                if (dependsInfo.length > 1) {
+                    thirdLevel.style.display = 'none'
+                    createDepending(thirdLevel, input, dependsInfo)
+                } else input.required = true
+            }
+        }
+    }
+    function emptyTestFunction(element) {
+        element.setCustomValidity('')
+        if (element.value == '') element.setCustomValidity('Si no cuenta con este dato, escriba N.A. en este campo')
+    }
+    function createTest(element, valueTest, alertText) {
+        element.addEventListener('keyup', function () {
+            let validationText = ''
+            if (logicValidation(element.value, valueTest)) validationText = alertText
+            element.setCustomValidity(validationText)
+        })
+    }
+    function logicValidation(value, validationData) {
+        let operation = parseInt(validationData.slice(0, 2))
+        let data = validationData.slice(2)
+        switch (operation) {
+            case 0:
+                return value == data
+                break
+            case 1:
+                return value != data
+                break
+            case 2:
+                return value > data
+                break
+            case 3:
+                return value >= data
+                break
+            case 4:
+                return value < data
+                break
+            case 5:
+                return value <= data
+                break
+            case 6: //Longitud del texto en palabras
+                return logicValidation(value.split(' ').filter(Boolean).length, data)
+                break
+            case 7: //Longitud del texto en tamaño del array
+                return logicValidation(value.length, data)
+                break
+            case 8:
+                return value.includes(data)
+                break
+            case 9:
+                return value.startsWith(data)
+                break
+            case 10:
+                return value.endsWith(data)
+                break
+            case 11:
+                const pattern = new RegExp(data)
+                return value.match(pattern)
+                break
+        }
+    }
+    function createDepending(elementContainer, element, dependsInfo) {
+        const elementDepend = document.getElementById(dependsInfo[0])
+        elementDepend.addEventListener('change', function () {
+            const elementValue = elementDepend.value
+            let isRequired = false
+            let displayMode = 'none'
+            if (elementValue == dependsInfo[1]) {
+                isRequired = true
+                displayMode = ''
+            }
+            elementContainer.style.display = displayMode
+            element.required = isRequired
+        })
+    }
+    function createTable(hours) {
+        for (let day = 0; day < 3 * numDays; day++) {//Generar contenedores fechas
+            const date = document.createElement('th')
+            date.id = day
+            dates.appendChild(date)
+            date.classList.add('tdVisible')
+            if (day > numDays - 1) date.classList.replace('tdVisible', 'tdHidden')
+        }
+        for (let indexDay = 0; indexDay < numDays; indexDay++) {//Generar nombres de días  
+            const day = document.createElement('th')
+            daysRow.appendChild(day)
+            day.textContent = days[indexDay]
+        }
+        for (let rowSlot = 0; rowSlot < slots; rowSlot++) {//Generar horas del servicio
+            const table = document.createElement('table')
+            divTable.appendChild(table)
+            const border = document.createElement('hr')
+            border.classList.add('borderTable')
+            divTable.appendChild(border)
+            const row = document.createElement('tr')
+            table.appendChild(row)
+            row.id = `R${rowSlot}`
+            const hour = document.createElement('th')
+            row.appendChild(hour)
+            hour.textContent = hours[rowSlot]
+            for (let daySlot = 0; daySlot < 3 * numDays; daySlot++) {//Completar filas
+                const id = `${daySlot}.${rowSlot}`
+                const celda = document.createElement('td')
+                row.appendChild(celda)
+                celda.classList.add('tdVisible')
+                celda.id = `c${id}`
+                const radio = document.createElement('input')
+                celda.appendChild(radio)
+                radio.classList.add('radioClass')
+                radio.id = `r${id}`
+                radio.type = 'radio'
+                radio.name = 'dateAppointment'
+                radio.disabled = true
+                radio.required = true
+                radio.checked = false
+                const label = document.createElement('label')
+                celda.appendChild(label)
+                label.textContent = 'Ocupado'
+                label.id = `l${id}`
+                label.classList.add('busyDate')
+                label.setAttribute('for', `r${id}`)
+                if (daySlot > numDays - 1) celda.classList.replace('tdVisible', 'tdHidden')
+            }
+        }
+        fillSchedule()
+    }
+    function fillSchedule() {//Asignación de datos
+        fetch(`${url}?action=3`).then(response => response.json()).then(data => {//Obtener JSON
+            for (let day = 0; day < 3 * numDays; day++) {// All busy
+                for (let slot = 0; slot < slots; slot++) {
+                    const id = `${day}.${slot}`
+                    radio = document.getElementById(`r${id}`)
+                    radio.disabled = true
+                    radio.checked = false
+                    radio.value = null
+                    label = document.getElementById(`l${id}`)
+                    label.className = ''
+                    label.classList.add('busyDate')
+                    label.textContent = 'Ocupado'
+                }
+            }
+            day = 0
+            for (let indexData = 0; indexData < data.length; indexData++) {//Asignar valores
+                const date = data[indexData]
+                if (date.length == 9) {// == 9 Son fechas 29/oct/24
+                    const dateTd = document.getElementById(day)
+                    dateTd.textContent = `${date}`
+                    if (data[indexData + 1].length != 9) {//Es una fecha con franjas activas
+                        for (let slot = 0; slot < slots; slot++) {
+                            if (serviceSchedule[day % numDays][slot] != 0) {//Franja valida != 0
+                                indexData++ //Avanza hasta la siguiente fecha
+                                const datum = data[indexData]
+                                if (datum == 0) continue
+                                const modality = datum.slice(-1)
+                                const id = `${day}.${slot}`
+                                const finalClass = modality == 'V' ? 'freeDateVirtual' : 'freeDateFace'
+                                radio = document.getElementById(`r${id}`)
+                                radio.value = datum
+                                radio.disabled = false
+                                label = document.getElementById(`l${id}`)
+                                label.textContent = 'Disponible'
+                                label.classList.replace('busyDate', finalClass)
+                            }
+                        }
+                    }
+                    day++
+                }
+            }
+        })
+    }
+    function mailTest() {//Verificación correo
+        const datum = mail.value
+        const isValid = datum.endsWith('@unal.edu.co') || datum == ''
+        mail.setCustomValidity(isValid ? '' : noValidMailText)
+        textMail.classList.toggle('wrongInput', !isValid)
+        imgMail.classList.toggle('wrongInputImage', !isValid)
+    }
+    typeID.addEventListener('change', function () {//Verificación de tipo de documento
+        numberID.type = 'number'
+        if (typeID.value == 'Pasaporte') numberID.type = 'text'
+    })
+    link.addEventListener('change', function () {//Cambio de opciones en Departamento o Programa
+        const linkCase = parseInt(link.value)
+        department.options.length = 0
+        containerDepartment.style = ""
+        department.required = true
+        let options = []
+        switch (linkCase) {
+            case 1://Docente
+                options = ['', 'Ingeniería Civil y Agrícola', 'Ingeniería de Sistemas e Industrial', 'Ingeniería Eléctrica y Electrónica', 'Ingeniería Química y Ambiental', 'Ingeniería Mecánica y Mecatrónica']
+                break
+            case 2://Pregrado
+                options = ['', 'Ingeniería Agrícola', 'Ingeniería Civil', 'Ingeniería Eléctrica', 'Ingeniería Electrónica', 'Ingeniería Industrial', 'Ingeniería Mecánica', 'Ingeniería Mecatrónica', 'Ingeniería Química', 'Ingeniería Sistemas y Computación']
+                break
+            case 3://Especialización
+                options = ['', 'Especialización en estructuras', 'Especialización Iluminación Pública y Privada', 'Especialización en Tránsito, Diseño y Seguridad Vial', 'Especialización en Gobierno Electrónico']
+                break
+            case 4://Maestría
+                options = ['', 'Maestría en Automatización Industrial', 'Maestría en Ingeniería de Sistemas y Computación', 'Maestría en Ingeniería - Ingeniería de Biosistemas', 'Maestría en Estructuras', 'Maestría en Ingeniería Electrónica', 'Maestría en Ingeniería Ambiental', 'Maestría en Ingeniería Industrial', 'Maestría en Materiales y Procesos', 'Maestría en Ingeniería Mecánica', 'Maestría en Telecomunicaciones', 'Maestría en Bioinformática', 'Maestría en Recursos Hidráulicos', 'Maestría en Geotecnia', 'Maestría en Ingeniería Eléctrica', 'Maestría en Ingeniería Química', 'Maestría en Transporte']
+                break
+            case 5://Doctorado
+                options = ['', 'Doctorado en Ingeniería Ciencia y Tecnología de Materiales', 'Doctorado en Ingeniería Eléctrica', 'Doctorado en Industria y Organizaciones', 'Doctorado en Ingeniería Sistemas y Computación', 'Doctorado en Ingeniería - Ingeniería Civil', 'Doctorado en Ingeniería Mecánica y Mecatrónica', 'Doctorado en Estudios Ambientales', 'Doctorado en Ingeniería Química']
+                break
+            default://OPS
+                containerDepartment.style.display = 'none'
+                department.required = false
+                break
+        }
+        options.forEach(function (option) {//Añadir opciones
+            const newOption = document.createElement('option')
+            newOption.text = option
+            department.add(newOption)
+        })
+        if (linkCase <= 5) department.options[0].style.display = 'none'
+    })
+    function previousWeek() {//Muestra la semana previa
+        week--
+        previousWeekButton.disabled = week == 0 ? true : null
+        nextWeekButton.disabled = week == 0 ? false : null
+        showHidden(false)
+    }
+    function nextWeek() {//Muestra la siguiente semana
+        week++
+        nextWeekButton.disabled = week == 2 ? true : null
+        previousWeekButton.disabled = week == 2 ? false : null
+        showHidden(true)
+    }
+    function showHidden(origin) {//Muestra las celdas solicitadas y oculta las actuales
+        const toShow = week * numDays
+        const toHide = origin ? (week - 1) * numDays : (week + 1) * numDays
+        showHideFunction(toShow, true)
+        showHideFunction(toHide, false)
+    }
+    function showHideFunction(week, what) {//Función mostrar u ocultar
+        const initial = what ? 'tdHidden' : 'tdVisible'
+        const final = what ? 'tdVisible' : 'tdHidden'
+        for (let day = 0; day < numDays; day++) {
+            date = document.getElementById(week + day)
+            date.classList.replace(initial, final)
+            for (let slot = 0; slot < slots; slot++) {
+                celda = document.getElementById(`c${week + day}.${slot}`)
+                celda.classList.replace(initial, final)
+            }
+        }
+    }
+    form.addEventListener("submit", (event) => {
+        clearInterval(refresh)
+        event.preventDefault()
+        const mailSend = mail.value
+        fullDate = (new FormData(form)).get('dateAppointment')
+        formData = [name.value, mailSend, typeID.value, numberID.value, phone.value, link.options[link.value].innerText, department.value]
+        serviceData = getServiceData()        
+        mailVerification.innerText = mailSend
+        dateVerification.innerText = `${fullDate.slice(0, 9)} a las ${fullDate.slice(28, -1)}`
+        verificationModal.style.display = 'flex'
+    })
+    function getServiceData() {
+        const data = []
+        elements.forEach((element) => data.push(document.getElementById(element[2]).value))
+        return data
+    }
+    cancelModalVerification.addEventListener('click', () => {
+        restoreSchedule()
+        verificationModal.style.display = 'none'
+    })
+    function restoreSchedule() {
+        fillSchedule()
+        refresh = setInterval(fillSchedule, 1 * 60 * 1000)
+    }
+    confirmModalVerification.addEventListener('click', () => {//Implementación con GAS
+        verificationModal.style.display = 'none'
+        loader.style.display = 'flex'
+        confirmModalVerification.disabled = true
+        google.script.run.withSuccessHandler(responseTest).request(fullDate, formData, serviceData)
+    })
+    function responseTest(response) {//Evaluar respuesta del Backend
+        const indexCase = response[0]
+        if (indexCase == 2) {
+            datePenaltyPanel.innerText = response[1]
+            daysPenaltyPanel.innerText = response[2]
+        }
+        loader.style.display = 'none'
+        const requestCase = requestCases[indexCase]
+        requestCase.style.display = 'flex'
+    }
+    requestCaseButtons[0].addEventListener('click', () => restRequestCases(requestCases[0]))
+    requestCaseButtons[1].addEventListener('click', () => clearForm(requestCases[1]))
+    requestCaseButtons[2].addEventListener('click', () => clearForm(requestCases[2]))
+    requestCaseButtons[3].addEventListener('click', () => restRequestCases(requestCases[3]))
+    requestCaseButtons[4].addEventListener('click', () => restRequestCases(requestCases[4]))
+    requestCaseButtons[5].addEventListener('click', () => restRequestCases(requestCases[5]))
+    requestCaseButtons[6].addEventListener('click', () => {//Logró la cita
+        window.location.href = 'https://ingenieria.bogota.unal.edu.co/es/dependencias/vicedecanatura-de-investigacion-y-extension.html'
+    })
+    function restRequestCases(requestCase) {
+        confirmModalVerification.disabled = false
+        requestCase.style.display = 'none'
+        restoreSchedule()
+    }
+    function clearForm(requestCase) {//Está sancionado de alguna manera
+        requestCase.style.display = 'none'
+        for (let i = 0; i < form.elements.length; i++) {
+            const elemento = form.elements[i]
+            if (elemento.tagName === 'INPUT' || elemento.tagName === 'SELECT') {
+                elemento.value = ''
+                sendRequestButton.value = 'SOLICITAR CITA'
+            }
+        }
+        confirmModalVerification.disabled = false
+        containerDepartment.style.display = 'none'
+        department.required = false
+        while (week != 0) previousWeek()
+        window.scrollTo({ top: 0, behavior: 'auto' })
+        restoreSchedule()
+    }
+</script>
+</html>
