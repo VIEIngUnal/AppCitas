@@ -100,7 +100,7 @@
     }
     .modalContainer {
         background-color: #fff;
-        width: 470px;
+        width: 490px;
         height: 205px;
         margin: 190px auto;
         padding: 20px;
@@ -925,7 +925,7 @@
 </style>
 <body>
     <div class="titlesLevel">
-        <img src="https://i.ibb.co/8s63dPJ/escudo-Unal.png" class="shield">
+        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/escudo-Unal.png?raw=true" class="shield">
         <div class="serviceText">
             <h1>Solicitud de cita</h1>
             <p>Programe su cita con el servicio<span id='serviceText'></span>.</p>
@@ -941,7 +941,7 @@
                 <div class="thirdFormLevelLeft">
                     <input class="inputClass" type="text" id="name" required>
                     <div class="containerInputImage">
-                        <img src="https://i.ibb.co/3FyQn1M/nombre.png" class="inputImage">
+                        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/nombre.png?raw=true" class="inputImage">
                         <label for="name" class="labelInput">
                             <span class="textLabelInput">Nombre completo</span>
                         </label>
@@ -950,7 +950,7 @@
                 <div class="thirdFormLevelRight">
                     <input type="email" class="inputClass" id="mail" onkeyup="mailTest()" required>
                     <div class="containerInputImage">
-                        <img src="https://i.ibb.co/xsv29Xw/correo.png" class="inputImage" id="imgMail">
+                        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/correo.png?raw=true" class="inputImage" id="imgMail">
                         <label for="mail" class="labelInput">
                             <span class="textLabelInput" id="textMail">Correo institucional (ejemplo@unal.edu.co)</span>
                         </label>
@@ -967,7 +967,7 @@
                         <option>Pasaporte</option>
                     </select>
                     <div class="containerInputImage">
-                        <img src="https://i.ibb.co/vD2zvYw/Tipo-de-doc.png" class="inputImage">
+                        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/Tipo-de-doc.png?raw=true" class="inputImage">
                         <label for="typeID" class="labelInput">
                             <span class="textLabelInput">Tipo de documento de identidad</span>
                         </label>
@@ -976,7 +976,7 @@
                 <div class="thirdFormLevelRight">
                     <input class="inputClass" type="number" id="numberID" required>
                     <div class="containerInputImage">
-                        <img src="https://i.ibb.co/NNvvN3N/numero.png" class="inputImage">
+                        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/numero.png?raw=true" class="inputImage">
                         <label for="numberID" class="labelInput">
                             <span class="textLabelInput">Número de identificación</span>
                         </label>
@@ -987,7 +987,7 @@
                 <div class="thirdFormLevelLeft">
                     <input class="inputClass" type="number" id="phone" required>
                     <div class="containerInputImage">
-                        <img src="https://i.ibb.co/jgBNbFG/telefono.png" class="inputImage">
+                        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/telefono.png?raw=true" class="inputImage">
                         <label for="phone" class="labelInput">
                             <span class="textLabelInput">Teléfono</span>
                         </label>
@@ -1004,7 +1004,7 @@
                         <option value=6>Administrativo - OPS</option>
                     </select>
                     <div class="containerInputImage">
-                        <img src="https://i.ibb.co/bsrLcbg/tipo.png" class="inputImage">
+                        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/tipo.png?raw=true" class="inputImage">
                         <label for="link" class="labelInput">
                             <span class="textLabelInput">Tipo de vinculación con la Facultad de Ingeniería</span>
                         </label>
@@ -1015,7 +1015,7 @@
                 <div class="thirdFormLevelRight">
                     <select id="department" required></select>
                     <div class="containerInputImage">
-                        <img src="https://i.ibb.co/QDYJLbN/departamento.png" class="inputImage">
+                        <img src="https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/departamento.png?raw=true" class="inputImage">
                         <label for="department" class="labelInput">
                             <span class="textLabelInput">Departamento o Programa</span>
                         </label>
@@ -1346,32 +1346,35 @@
                     })
                     input.options[0].style.display = 'none'
                 }
-                if (emptyTest) {
-                    emptyTestFunction(input)
-                    input.addEventListener('keyup', () => emptyTestFunction(input))
-                }
-                if (valueTest) createTest(input, valueTest, alertText)
                 if (dependsInfo.length > 1) {
                     thirdLevel.style.display = 'none'
                     createDepending(thirdLevel, input, dependsInfo)
                 } else input.required = true
+                validationFunctions(emptyTest, valueTest, alertText, input, span, img)
             }
         }
+    }
+    function validationFunctions(emptyTest, valueTest, alertText, element, elementSpan, elementImg) {
+        if (emptyTest) emptyTestFunction(element)
+        const emptyAlert = 'Si no cuenta con este dato, escriba N.A. en este campo'
+        element.addEventListener ('keyup', () => {
+            const value = element.value
+            element.setCustomValidity('')
+            if (emptyTest && value == '') element.setCustomValidity(emptyAlert)
+            if (!valueTest) return
+            const isValid = logicValidation(value, valueTest)
+            if (!isValid) element.setCustomValidity(alertText)
+            elementSpan.classList.toggle('wrongInput', !isValid)
+            elementImg.classList.toggle('wrongInputImage', !isValid)
+        })
     }
     function emptyTestFunction(element) {
         element.setCustomValidity('')
         if (element.value == '') element.setCustomValidity('Si no cuenta con este dato, escriba N.A. en este campo')
     }
-    function createTest(element, valueTest, alertText) {
-        element.addEventListener('keyup', function () {
-            let validationText = ''
-            if (logicValidation(element.value, valueTest)) validationText = alertText
-            element.setCustomValidity(validationText)
-        })
-    }
     function logicValidation(value, validationData) {
-        let operation = parseInt(validationData.slice(0, 2))
-        let data = validationData.slice(2)
+        const operation = parseInt(validationData.slice(0, 2))
+        const data = validationData.slice(2)
         switch (operation) {
             case 0:
                 return value == data
@@ -1391,7 +1394,7 @@
             case 5:
                 return value <= data
                 break
-            case 6: //Longitud del texto en palabras
+            case 6: //Longitud del texto en palabras            
                 return logicValidation(value.split(' ').filter(Boolean).length, data)
                 break
             case 7: //Longitud del texto en tamaño del array
