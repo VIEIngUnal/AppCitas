@@ -23,9 +23,6 @@ const sanctionsDays = appData.getRange('27:27').getValues().flat().map(days => J
 //Constantes útiles
 const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 //Funciones
-function xd() {
-  console.log(currentSanctioned.getRange(1, 1, 1, 3).getValues())
-}
 function doGet() {//Llamado del archivo .html
   return HtmlService.createHtmlOutputFromFile("s").setTitle('App. Sanciones');
 }
@@ -84,20 +81,18 @@ function getEmailSanctioned(guestList, service, date, fullHour) {//Obtener email
   return emailSanctioned
 }
 function findSanction(service, email) {//Datos en historial
-  let answer = [0] //No se encontró -> # sanciones 0
   const peopleHistory = sanctionedHistory.getRange('B2:B').getValues()
   for (let indexPerson = 0; indexPerson < peopleHistory.length; indexPerson++) {
     if (peopleHistory[indexPerson] == email) {//Se encontró
       const row = indexPerson + 2
       const timesValue = sanctionedHistory.getRange(row, countTimesSanctioned[service]).getValue()
       const times = timesValue == '' ? 0 : timesValue
-      answer = [times, row] //# sanciones, fila de ubicación
+      return [times, row] //# sanciones, fila de ubicación
     }
   }
-  return answer;
+  return [0] //No se encontró -> # sanciones 0
 }
 function penalize(toRead) {//Sancionar, toRead = [servicio, correo, hora, nombre, fecha]
-  toRead = [3, 'yovargasg@unal.edu.co', '08:00 a.m.', 'Yovany Vargas', '2024-10-24T00:00:01']
   const [service, emailSanctioned, hour, name, date] = toRead
   const sanctionedDate = dateFormat(date)
   const historyData = findSanction(service, emailSanctioned)
@@ -125,24 +120,22 @@ function penalize(toRead) {//Sancionar, toRead = [servicio, correo, hora, nombre
     const currenTest = currentLastRow != 1
     if (currentData.length == 2) {//Está pero no sancionado
       currentLastRow = currentData[1] - 1
-    } else if (currenTest && !availableSanction) {//No está y hay vigentes
-      currentSanctioned.insertRowAfter(currentLastRow)
-    }
+    } else if (currenTest && !availableSanction) currentSanctioned.insertRowAfter(currentLastRow)
     currentLastRow++
     currentSanctioned.getRange(`A${currentLastRow}:B${currentLastRow}`).setValues(dataSanctioned)
     const data = [[sanctionedDate, hour, sanctionsDays[service][timesSanctioned]]]
     const serviceColumn = currentColumns[service]
     currentSanctioned.getRange(currentLastRow, serviceColumn, 1, 3).setValues(data)
   }
-  return 3
+  return 3 //Sanción con exito
 }
 function dateFormat(fullDate) {//Cambiar formato fecha 
-  const date = new Date(fullDate);
+  const date = new Date(fullDate)
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
 }
 function findCurrent(service, email) {//Datos sanción vigente
   const serviceColumn = currentColumns[service]
-  const currentPeople = currentSanctioned.getRange('B2:B').getValues();
+  const currentPeople = currentSanctioned.getRange('B2:B').getValues()
   for (let indexPerson = 0; indexPerson < currentPeople.length; indexPerson++) {
     const currentEmail = currentPeople[indexPerson]
     const row = indexPerson + 2;
