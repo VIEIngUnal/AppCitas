@@ -398,7 +398,7 @@
             </div>
           </div> 
           <div class = "thirdLevelRight">
-            <select id = "service" required>
+            <select id = "service" disabled = "true" required>
               <option value = '' disabled selected style = "display:none;"></option>
               <option value = 3>Corrección de Estilo de Textos en Inglés y Español</option>
               <option value = 1>Apoyo a Gestión Administrativa de Proyectos</option>
@@ -484,13 +484,19 @@
     const caseSanction3 = document.getElementById('caseSanction_3');
     const titleUser = document.getElementById('titleUser');
     const hourUser = document.getElementById('hourUser');
-    const nameUser = document.getElementById('nameUser');
-    const emailUser = document.getElementById('emailUser');
-    const timesUser = document.getElementById('timesUser');
+    const nameUser = document.getElementById('nameUser')
+    const emailUser = document.getElementById('emailUser')
+    const timesUser = document.getElementById('timesUser')
     //Elementos adicionales
-    const waiting = document.getElementById('waiting');
-    const search = document.getElementById('search');
-    const sanctionButton = document.getElementById('sanctionButton');
+    const waiting = document.getElementById('waiting')
+    const search = document.getElementById('search')
+    const sanctionButton = document.getElementById('sanctionButton')
+    const url = 'https://script.google.com/macros/s/AKfycbxsFNjHvEeVMv1jXVQuck168dP-wQmB1um5WEE_LNERQqpKWTSF7AXNlpBVv-g4IWVFKg/exec?action=1'
+    var schedules
+    fetch(url).then(response => response.json()).then(data => {
+      schedules = data
+      service.disabled = false
+    })
     // Funciones
     function getCurrentDate() {//Obtener fecha actual
       const currentDate = new Date();
@@ -513,7 +519,6 @@
       let toSend = [date.value + 'T00:00:01', hour.value, service.value];
       waiting.style.display = 'flex';
       google.script.run.withSuccessHandler(responseTest).request(toSend);
-      toSend = null;
     });
     function responseTest(response) {//Evaluar respuesta de backend
       if(response.length == 0){
@@ -560,71 +565,24 @@
       }
       return initialHour.slice(0,5) + ' - ' + answer.toString() + meridian;
     }
-    function serviceTest(k) {//Definir franjas horarias
+    function serviceTest(service) {//Definir franjas horarias
       var day = new Date(date.value + 'T00:00:01').getDay();
       hour.options.length = 0;
-      search.disabled = false;
+      search.disabled = true;
       if(day == 0 || day == 6){
-        var newOption = document.createElement("option");
+        const newOption = document.createElement("option");
         newOption.text = 'No hay servicio los fines de semana.';
         hour.add(newOption);
-        search.disabled = true;
       }else{
-        switch (k) {
-          case 3:
-            if(day == 1 || day == 3){
-              ans = ["", "01:00 p.m.", "02:00 p.m.", "03:00 p.m.", "04:00 p.m."];
-            }else{
-              ans = ["", "07:00 a.m.", "08:00 a.m.", "09:00 a.m.", "10:00 a.m."];
-            }
-            break;
-          case 1:
-            if(day == 5){
-              ans = ['No hay horario definido para los viernes.'];
-              search.disabled = true;
-            }else{
-              ans = ["", "11:00 a.m.", "02:30 p.m.", "03:00 p.m.", "03:30 p.m.", "04:00 p.m."];
-            }
-            break;
-          case 2:
-            if(day == 5){
-              ans = ["", "10:00 a.m.", "10:30 a.m.", "11:00 a.m.", "11:30 a.m."];
-            }else{
-              ans = ["", "10:00 a.m.", "10:30 a.m.", "11:00 a.m.", "11:30 a.m.", "02:00 p.m.", "02:30 p.m.", "03:00 p.m.", "03:30 p.m."];
-            }
-            break;
-          case 0:
-            if(day == 5){
-              ans = ["", "10:00 a.m.", "10:30 a.m.", "11:00 a.m.", "11:30 a.m."]
-            }else if(day == 4){
-              ans = ["", "02:00 p.m.", "02:30 p.m.", "03:00 p.m.", "03:30 p.m."];
-            }else{
-              ans = ["", "10:00 a.m.", "10:30 a.m.", "11:00 a.m.", "11:30 a.m.", "02:00 p.m.", "02:30 p.m.", "03:00 p.m.", "03:30 p.m."];
-            }
-            break;
-          case 4:
-            ans = ['11:00 a.m.', '11:30 a.m.', '12:00 m.', '12:30 p.m.', '02:30 p.m.', '03:00 p.m.', '03:30 p.m.', '04:00 p.m.', '04:30 p.m.'];
-            if(day == 1 || day == 4){
-              ans = ["", '11:00 a.m.', '11:30 a.m.', '12:00 m.', '12:30 p.m.', '01:00 p.m.', '01:30 p.m.']
-            }else if(day == 2){
-              ans = ["", '02:00 p.m.', '02:30 p.m.', '03:00 p.m.', '03:30 p.m.', '04:00 p.m.', '04:30 p.m.'];
-            }else if(day == 5){
-              ans = ['No hay horario definido para los viernes.'];
-              search.disabled = true;
-            }
-            break;
-          default:
-            ans = ['Seleccione un servicio de apoyo.'];
-            search.disabled = true;
-            break;
-        }
+        ans = schedules[service][day - 1]
         ans.forEach(function(textOption) {
-          var newOption = document.createElement("option");
-          newOption.text = textOption;
-          hour.add(newOption);
+          var newOption = document.createElement("option")
+          newOption.text = textOption
+          hour.add(newOption)
         });
-        if(!(k == 1 && day == 5 || k == 4 && day == 5 || k == 5)){
-          hour.options[0].style.display = 'none';
+        if (!ans[0]) {
+          hour.options[0].style.display = 'none'
+          search.disabled = false
         }
       }
     }
