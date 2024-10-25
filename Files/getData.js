@@ -1,11 +1,11 @@
 //SOLO DEBE CAMBIAR LA CONSTANTE serviceIndex, NADA MÁS
-const serviceIndex = 6
+const serviceIndex = 5
 //Base de datos
 const dataBase = SpreadsheetApp.openById('1REbxAvc83wme_uIxwxmjEZvBpSX9Slc0hxfA2S8r5sc')
 const appData = dataBase.getSheetByName('App. Citas')
 const emailProfessional = appData.getRange(5, serviceIndex).getValue()
 const serviceWeeks = appData.getRange(9, serviceIndex).getValue()
-const dateDuration = (60 / appData.getRange(11, serviceIndex).getValue())
+const dateDuration = (appData.getRange(11, serviceIndex).getValue() / 60)
 //Constantes útiles
 const oneDayMilis = 24 * 60 * 60 * 1000
 const daysEvents = serviceWeeks * 7 - 1
@@ -54,6 +54,7 @@ function getServiceData() {//Horario, elementos HTML del section
   serviceData.push(caseOfModality()) //2
   serviceData.push(sectionTitle) //3
   serviceData.push(elementsHTML) //4
+  console.log(serviceData)
   return arrayToJSON(serviceData)
 }
 function getSectionData() {
@@ -81,6 +82,7 @@ function getCurrentSchedule() {//Horario disponible
     getWeekSchedule(currentSchedule, transitoryDate, dateToday, events)
     transitoryDate.setDate(transitoryDate.getDate() + (7 - modalitySchedule.length)) //Transición a siguiente semana
   }
+  console.log(currentSchedule)
   return arrayToJSON(currentSchedule)
 }
 function getWeekSchedule(currentSchedule, transitoryDate, dateToday, events) {//Obtiene el horario por semana
