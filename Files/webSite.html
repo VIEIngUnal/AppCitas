@@ -1024,47 +1024,49 @@
             </div>
         </div>
         <section id="serviceSection"><!-- Contenedor del servicio --></section>
-        <div class="titlesLevel">
-            <h2>Fecha de la cita</h2>
-        </div>
-        <div class="firstFormLevel" id="panelModalities">
-            <p id="virtualModality" class="secondFormLevelModalities"><span class="greenCircle"></span>Virtual</p>
-            <p id="faceModality" class="secondFormLevelModalities"><span class="purpleCircle"></span>Presencial
-            </p>
-        </div>
-        <div class="firstFormLevel" id="schedule">
-            <table>
-                <tr id="dates">
-                    <th>Fecha</th>
-                </tr>
-                <tr id="days">
-                    <th>Hora</th>
-                </tr>
-            </table>
-            <hr class="borderTable">
-        </div>
-        <div class="firstFormLevel">
-            <div class="scheduleNavigationButtons">
-                <button type="button" id="previousWeekButton" onclick="previousWeek()">
-                    <div class="iconPreviousWeekButton">
-                        <svg class="svgPreviousWeekButton" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                            viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
-                        </svg>
-                    </div>
-                    <span class="textPreviousWeekButton">ANTERIOR SEMANA</span>
-                </button>
-                <button type="button" id="nextWeekButton" onclick="nextWeek()">
-                    <div class="iconNextWeekButton">
-                        <svg class="svgNextWeekButton" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-                            viewBox="0 0 16 16">
-                            <path fill-rule="evenodd"
-                                d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
-                        </svg>
-                    </div>
-                    <span class="textNextWeekButton">SIGUIENTE SEMANA</span>
-                </button>
+        <div id = 'fullScheduleSection' style="display: none;">
+            <div class="titlesLevel">
+                <h2>Fecha de la cita</h2>
+            </div>
+            <div class="firstFormLevel" id="panelModalities">
+                <p id="virtualModality" class="secondFormLevelModalities"><span class="greenCircle"></span>Virtual</p>
+                <p id="faceModality" class="secondFormLevelModalities"><span class="purpleCircle"></span>Presencial
+                </p>
+            </div>
+            <div class="firstFormLevel" id="schedule">
+                <table>
+                    <tr id="dates">
+                        <th>Fecha</th>
+                    </tr>
+                    <tr id="days">
+                        <th>Hora</th>
+                    </tr>
+                </table>
+                <hr class="borderTable">
+            </div>
+            <div class="firstFormLevel">
+                <div class="scheduleNavigationButtons">
+                    <button type="button" id="previousWeekButton" onclick="previousWeek()">
+                        <div class="iconPreviousWeekButton">
+                            <svg class="svgPreviousWeekButton" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M12 8a.5.5 0 0 1-.5.5H5.707l2.147 2.146a.5.5 0 0 1-.708.708l-3-3a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L5.707 7.5H11.5a.5.5 0 0 1 .5.5z" />
+                            </svg>
+                        </div>
+                        <span class="textPreviousWeekButton">ANTERIOR SEMANA</span>
+                    </button>
+                    <button type="button" id="nextWeekButton" onclick="nextWeek()">
+                        <div class="iconNextWeekButton">
+                            <svg class="svgNextWeekButton" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                viewBox="0 0 16 16">
+                                <path fill-rule="evenodd"
+                                    d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z" />
+                            </svg>
+                        </div>
+                        <span class="textNextWeekButton">SIGUIENTE SEMANA</span>
+                    </button>
+                </div>
             </div>
         </div>
         <div class="firstFormLevel">
@@ -1194,10 +1196,11 @@
 </body>
 <script>
     //Horario de atención
-    const url = 'https://script.google.com/macros/s/AKfycbzbDpLd3LOrJHTiAWCj3h6K-wElcjaCj1OuhrM3TMdD3EbDZKp3_StCvg2pMSrMdZQDwA/exec'
+    const url = 'https://script.google.com/macros/s/AKfycbw_eFAqsyzJG9npBEwgsS0Xxz5N2pu3W_MSFzBA4mvDUfu_hLzQGQRsAt5LYRD5nitX4w/exec'
     fillTextService()
     const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
     const serviceText = document.getElementById('serviceText')
+    const fullScheduleSection = document.getElementById('fullScheduleSection')
     const divTable = document.getElementById('schedule')
     const daysRow = document.getElementById('days')
     const dates = document.getElementById('dates')
@@ -1522,6 +1525,7 @@
                     day++
                 }
             }
+            fullScheduleSection.style.display = ''
         })
     }
     function mailTest() {//Verificación correo
