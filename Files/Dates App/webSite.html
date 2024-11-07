@@ -2,6 +2,380 @@
 <html lang="en">
 <meta charset="UTF-8">
 <meta name="viewport" content="width = device-width, initial-scale = 1.0">
+<script>
+    ////SOLO DEBE CAMBIAR LA CONSTANTE serviceIndex, en ambos archivos ¡¡¡NADA MÁS!!!
+    const serviceIndex = 6
+    //Horario de atención
+    let url = 'https://script.google.com/macros/s/AKfycbye20biAa8cDEQrKF0ZNcWN0zki3fTsvugnvdlhWv2ARf385zkfEHBmXfBT6jXIdeQfFA/exec'
+    url = `${url}?code=${serviceIndex}`
+    fillTextService()
+    //Variables útiles
+    var refresh = setInterval(fillSchedule, 1 * 60 * 1000)
+    var week = 0
+    var hours
+    var serviceSchedule
+    var numDays
+    var slots
+    var elements
+    var fullDate
+    var formData
+    var serviceData
+    //Funciones
+    createWholeServiceSection()
+    function getRequestCases(which) {
+        const casesArray = []
+        const isButton = which ? 'Button' : ''
+        for (let index = 0; index <= 6; index++) {
+            const requestCaseItem = document.getElementById(`requestCase${isButton}${index}`)
+            casesArray.push(requestCaseItem)
+        }
+        return casesArray
+    }
+    function fillTextService() {//Titulo del servicio
+        fetch(`${url}1`).then(response => response.json()).then(data => serviceText.textContent = ` de ${data}`)
+    }
+    function createWholeServiceSection() {//Datos del servicio y del horario
+        fetch(`${url}2`).then(response => response.json()).then(data => {//Obtener JSON
+            hours = data[0]
+            slots = hours.length
+            serviceSchedule = data[1]
+            caseOfModality(data[2])
+            numDays = serviceSchedule.length
+            document.styleSheets[0].cssRules[0].style.width = borderWidths[numDays - 1]
+            elements = data[4]
+            createServiceSection(data[3], elements)
+            createTable(hours)
+        })
+    }
+    function caseOfModality(caseNumber) {//Panel de modalidades 🟣🟢
+        switch (caseNumber) {
+            case 1://Solo virtual
+                virtualModality.style.display = ''
+                break
+            case 2://Solo presencial
+                faceModality.style.display = ''
+                break
+            case 3://Híbrido
+                virtualModality.style.display = ''
+                faceModality.style.display = ''
+                break
+        }
+        panelModalities.style.display = ''
+    }
+    function createServiceSection(sectionTitle, elements) {
+        const titleContainer = document.createElement('div')
+        serviceSection.appendChild(titleContainer)
+        titleContainer.classList.add('titlesLevel')
+        const h2 = document.createElement('h2')
+        h2.textContent = sectionTitle
+        titleContainer.appendChild(h2)
+        const firstFormLevel = document.createElement('div')
+        serviceSection.appendChild(firstFormLevel)
+        firstFormLevel.classList.add('firstFormLevel')
+        const lastSecond = Math.ceil(elements.length / 2)
+        for (let indexSecond = 0; indexSecond < lastSecond; indexSecond++) {
+            const secondFormLevel = document.createElement('div')
+            firstFormLevel.appendChild(secondFormLevel)
+            secondFormLevel.classList.add('secondFormLevel')
+            const lastElement = indexSecond == lastSecond - 1 ? elements.length - 1 : indexSecond * 2 + 1
+            for (let indexElement = indexSecond * 2; indexElement <= lastElement; indexElement++) {
+                const thirdFormLevelClass = (indexElement + 1) % 2 == 0 ? 'thirdFormLevelRight' : 'thirdFormLevelLeft'
+                const [name, urlImg, id, inputType, options, dependsInfo, valueTest, alertText, emptyTest] = elements[indexElement]
+                const elementType = inputType == 'select' ? inputType : 'input'
+                const thirdLevel = document.createElement('div')
+                secondFormLevel.appendChild(thirdLevel)
+                thirdLevel.classList.add(thirdFormLevelClass)
+                const input = document.createElement(elementType)
+                thirdLevel.appendChild(input)
+                input.id = id
+                const containerImage = document.createElement('div')
+                thirdLevel.appendChild(containerImage)
+                containerImage.classList.add('containerInputImage')
+                const img = document.createElement('img')
+                containerImage.appendChild(img)
+                img.src = urlImg
+                img.classList.add('inputImage')
+                const label = document.createElement('label')
+                containerImage.appendChild(label)
+                label.classList.add('labelInput')
+                label.htmlFor = id
+                const span = document.createElement('span')
+                label.appendChild(span)
+                span.classList.add('textLabelInput')
+                span.textContent = name
+                if (elementType != 'select') {
+                    input.type = inputType
+                    input.classList.add('inputClass')
+                }
+                if (options.length > 1) {
+                    options.unshift('')
+                    options.forEach(function (option) {//Añadir opciones
+                        const newOption = document.createElement('option')
+                        newOption.text = option
+                        input.add(newOption)
+                    })
+                    input.options[0].style.display = 'none'
+                }
+                if (dependsInfo.length > 1) {
+                    thirdLevel.style.display = 'none'
+                    createDepending(thirdLevel, input, dependsInfo)
+                } else input.required = true
+                validationFunctions(emptyTest, valueTest, alertText, input, span, img)
+            }
+        }
+    }
+    function validationFunctions(emptyTest, valueTest, alertText, element, elementSpan, elementImg) {
+        if (emptyTest) emptyTestFunction(element)
+        const emptyAlert = 'Si no cuenta con este dato, escriba N.A. en este campo'
+        element.addEventListener ('keyup', () => {
+            const value = element.value
+            element.setCustomValidity('')
+            if (emptyTest && value == '') element.setCustomValidity(emptyAlert)
+            if (!valueTest) return
+            const isValid = logicValidation(value, valueTest)
+            if (!isValid) element.setCustomValidity(alertText)
+            elementSpan.classList.toggle('wrongInput', !isValid)
+            elementImg.classList.toggle('wrongInputImage', !isValid)
+        })
+    }
+    function emptyTestFunction(element) {
+        element.setCustomValidity('')
+        if (element.value == '') element.setCustomValidity('Si no cuenta con este dato, escriba N.A. en este campo')
+    }
+    function logicValidation(value, validationData) {
+        const operation = parseInt(validationData.slice(0, 2))
+        const data = validationData.slice(2)
+        switch (operation) {
+            case 0:
+                return value == data
+                break
+            case 1:
+                return value != data
+                break
+            case 2:
+                return value > data
+                break
+            case 3:
+                return value >= data
+                break
+            case 4:
+                return value < data
+                break
+            case 5:
+                return value <= data
+                break
+            case 6: //Longitud del texto en palabras            
+                return logicValidation(value.split(' ').filter(Boolean).length, data)
+                break
+            case 7: //Longitud del texto en tamaño del array
+                return logicValidation(value.length, data)
+                break
+            case 8:
+                return value.includes(data)
+                break
+            case 9:
+                return value.startsWith(data)
+                break
+            case 10:
+                return value.endsWith(data)
+                break
+            case 11:
+                const pattern = new RegExp(data)
+                return value.match(pattern)
+                break
+        }
+    }
+    function createDepending(elementContainer, element, dependsInfo) {
+        const elementDepend = document.getElementById(dependsInfo[0])
+        elementDepend.addEventListener('change', function () {
+            const elementValue = elementDepend.value
+            let isRequired = false
+            let displayMode = 'none'
+            if (elementValue == dependsInfo[1]) {
+                isRequired = true
+                displayMode = ''
+            }
+            elementContainer.style.display = displayMode
+            element.required = isRequired
+        })
+    }
+    function createTable(hours) {
+        for (let day = 0; day < 3 * numDays; day++) {//Generar contenedores fechas
+            const date = document.createElement('th')
+            date.id = day
+            dates.appendChild(date)
+            date.classList.add('tdVisible')
+            if (day > numDays - 1) date.classList.replace('tdVisible', 'tdHidden')
+        }
+        for (let indexDay = 0; indexDay < numDays; indexDay++) {//Generar nombres de días  
+            const day = document.createElement('th')
+            daysRow.appendChild(day)
+            day.textContent = days[indexDay]
+        }
+        for (let rowSlot = 0; rowSlot < slots; rowSlot++) {//Generar horas del servicio
+            const table = document.createElement('table')
+            divTable.appendChild(table)
+            const border = document.createElement('hr')
+            border.classList.add('borderTable')
+            divTable.appendChild(border)
+            const row = document.createElement('tr')
+            table.appendChild(row)
+            row.id = `R${rowSlot}`
+            const hour = document.createElement('th')
+            row.appendChild(hour)
+            hour.textContent = hours[rowSlot]
+            for (let daySlot = 0; daySlot < 3 * numDays; daySlot++) {//Completar filas
+                const id = `${daySlot}.${rowSlot}`
+                const celda = document.createElement('td')
+                row.appendChild(celda)
+                celda.classList.add('tdVisible')
+                celda.id = `c${id}`
+                const radio = document.createElement('input')
+                celda.appendChild(radio)
+                radio.classList.add('radioClass')
+                radio.id = `r${id}`
+                radio.type = 'radio'
+                radio.name = 'dateAppointment'
+                radio.disabled = true
+                radio.required = true
+                radio.checked = false
+                const label = document.createElement('label')
+                celda.appendChild(label)
+                label.textContent = 'Ocupado'
+                label.id = `l${id}`
+                label.classList.add('busyDate')
+                label.setAttribute('for', `r${id}`)
+                if (daySlot > numDays - 1) celda.classList.replace('tdVisible', 'tdHidden')
+            }
+        }
+        fillSchedule()
+    }
+    function fillSchedule() {//Asignación de datos
+        fetch(`${url}3`).then(response => response.json()).then(data => {//Obtener JSON
+            for (let day = 0; day < 3 * numDays; day++) {// All busy
+                for (let slot = 0; slot < slots; slot++) {
+                    const id = `${day}.${slot}`
+                    radio = document.getElementById(`r${id}`)
+                    radio.disabled = true
+                    radio.checked = false
+                    radio.value = null
+                    label = document.getElementById(`l${id}`)
+                    label.className = ''
+                    label.classList.add('busyDate')
+                    label.textContent = 'Ocupado'
+                }
+            }
+            day = 0
+            for (let indexData = 0; indexData < data.length; indexData++) {//Asignar valores
+                const date = data[indexData]
+                if (date.length == 9) {// == 9 Son fechas 29/oct/24
+                    const dateTd = document.getElementById(day)
+                    dateTd.textContent = `${date}`
+                    if (data[indexData + 1].length != 9) {//Es una fecha con franjas activas
+                        for (let slot = 0; slot < slots; slot++) {
+                            if (serviceSchedule[day % numDays][slot] != 0) {//Franja valida != 0
+                                indexData++ //Avanza hasta la siguiente fecha
+                                const datum = data[indexData]
+                                if (datum == 0) continue
+                                const modality = datum.slice(-1)
+                                const id = `${day}.${slot}`
+                                const finalClass = modality == 'V' ? 'freeDateVirtual' : 'freeDateFace'
+                                radio = document.getElementById(`r${id}`)
+                                radio.value = datum
+                                radio.disabled = false
+                                label = document.getElementById(`l${id}`)
+                                label.textContent = 'Disponible'
+                                label.classList.replace('busyDate', finalClass)
+                            }
+                        }
+                    }
+                    day++
+                }
+            }
+            fullScheduleSection.style.display = ''
+        })
+    }
+    function mailTest() {//Verificación correo
+        const datum = mail.value
+        const isValid = datum.endsWith('@unal.edu.co') || datum == ''
+        mail.setCustomValidity(isValid ? '' : noValidMailText)
+        textMail.classList.toggle('wrongInput', !isValid)
+        imgMail.classList.toggle('wrongInputImage', !isValid)
+    }
+    
+    function previousWeek() {//Muestra la semana previa
+        week--
+        previousWeekButton.disabled = week == 0 ? true : null
+        nextWeekButton.disabled = week == 0 ? false : null
+        showHidden(false)
+    }
+    function nextWeek() {//Muestra la siguiente semana
+        week++
+        nextWeekButton.disabled = week == 2 ? true : null
+        previousWeekButton.disabled = week == 2 ? false : null
+        showHidden(true)
+    }
+    function showHidden(origin) {//Muestra las celdas solicitadas y oculta las actuales
+        const toShow = week * numDays
+        const toHide = origin ? (week - 1) * numDays : (week + 1) * numDays
+        showHideFunction(toShow, true)
+        showHideFunction(toHide, false)
+    }
+    function showHideFunction(week, what) {//Función mostrar u ocultar
+        const initial = what ? 'tdHidden' : 'tdVisible'
+        const final = what ? 'tdVisible' : 'tdHidden'
+        for (let day = 0; day < numDays; day++) {
+            date = document.getElementById(week + day)
+            date.classList.replace(initial, final)
+            for (let slot = 0; slot < slots; slot++) {
+                celda = document.getElementById(`c${week + day}.${slot}`)
+                celda.classList.replace(initial, final)
+            }
+        }
+    }
+    
+    function getServiceData() {
+        const data = []
+        elements.forEach((element) => data.push(document.getElementById(element[2]).value))
+        return data
+    }
+    
+    function restoreSchedule() {
+        fillSchedule()
+        refresh = setInterval(fillSchedule, 1 * 60 * 1000)
+    }
+    function responseTest(response) {//Evaluar respuesta del Backend
+        const indexCase = response[0]
+        if (indexCase == 2) {
+            datePenaltyPanel.innerText = response[1]
+            daysPenaltyPanel.innerText = response[2]
+        }
+        loader.style.display = 'none'
+        const requestCase = requestCases[indexCase]
+        requestCase.style.display = 'flex'
+    }
+    function restRequestCases(requestCase) {
+        confirmModalVerification.disabled = false
+        requestCase.style.display = 'none'
+        restoreSchedule()
+    }
+    function clearForm(requestCase) {//Está sancionado de alguna manera
+        requestCase.style.display = 'none'
+        for (let i = 0; i < form.elements.length; i++) {
+            const elemento = form.elements[i]
+            if (elemento.tagName === 'INPUT' || elemento.tagName === 'SELECT') {
+                elemento.value = ''
+                sendRequestButton.value = 'SOLICITAR CITA'
+            }
+        }
+        confirmModalVerification.disabled = false
+        containerDepartment.style.display = 'none'
+        department.required = false
+        while (week != 0) previousWeek()
+        window.scrollTo({ top: 0, behavior: 'auto' })
+        restoreSchedule()
+    }
+</script>
 <title>
     Programe su cita
 </title>
@@ -1196,8 +1570,6 @@
 </body>
 <script>
     //Horario de atención
-    const url = 'https://script.google.com/macros/s/AKfycbw_eFAqsyzJG9npBEwgsS0Xxz5N2pu3W_MSFzBA4mvDUfu_hLzQGQRsAt5LYRD5nitX4w/exec'
-    fillTextService()
     const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes']
     const serviceText = document.getElementById('serviceText')
     const fullScheduleSection = document.getElementById('fullScheduleSection')
@@ -1242,299 +1614,7 @@
     const datePenaltyPanel = document.getElementById('datePenaltyPanel')
     const daysPenaltyPanel = document.getElementById('daysPenaltyPanel')
     const cancelModalVerification = document.getElementById('cancelModalVerification')
-    //Variables útiles
-    var refresh = setInterval(fillSchedule, 1 * 60 * 1000)
-    var week = 0
-    var hours
-    var serviceSchedule
-    var numDays
-    var slots
-    var elements
-    var fullDate
-    var formData
-    var serviceData
     //Funciones
-    createWholeServiceSection()
-    function getRequestCases(which) {
-        const casesArray = []
-        const isButton = which ? 'Button' : ''
-        for (let index = 0; index <= 6; index++) {
-            const requestCaseItem = document.getElementById(`requestCase${isButton}${index}`)
-            casesArray.push(requestCaseItem)
-        }
-        return casesArray
-    }
-    function fillTextService() {//Titulo del servicio
-        fetch(url).then(response => response.json()).then(data => serviceText.textContent = ` de ${data}`)
-    }
-    function createWholeServiceSection() {//Datos del servicio y del horario
-        fetch(`${url}?action=2`).then(response => response.json()).then(data => {//Obtener JSON
-            hours = data[0]
-            slots = hours.length
-            serviceSchedule = data[1]
-            caseOfModality(data[2])
-            numDays = serviceSchedule.length
-            document.styleSheets[0].cssRules[0].style.width = borderWidths[numDays - 1]
-            elements = data[4]
-            createServiceSection(data[3], elements)
-            createTable(hours)
-        })
-    }
-    function caseOfModality(caseNumber) {//Panel de modalidades 🟣🟢
-        switch (caseNumber) {
-            case 1://Solo virtual
-                virtualModality.style.display = ''
-                break
-            case 2://Solo presencial
-                faceModality.style.display = ''
-                break
-            case 3://Híbrido
-                virtualModality.style.display = ''
-                faceModality.style.display = ''
-                break
-        }
-        panelModalities.style.display = ''
-    }
-    function createServiceSection(sectionTitle, elements) {
-        const titleContainer = document.createElement('div')
-        serviceSection.appendChild(titleContainer)
-        titleContainer.classList.add('titlesLevel')
-        const h2 = document.createElement('h2')
-        h2.textContent = sectionTitle
-        titleContainer.appendChild(h2)
-        const firstFormLevel = document.createElement('div')
-        serviceSection.appendChild(firstFormLevel)
-        firstFormLevel.classList.add('firstFormLevel')
-        const lastSecond = Math.ceil(elements.length / 2)
-        for (let indexSecond = 0; indexSecond < lastSecond; indexSecond++) {
-            const secondFormLevel = document.createElement('div')
-            firstFormLevel.appendChild(secondFormLevel)
-            secondFormLevel.classList.add('secondFormLevel')
-            const lastElement = indexSecond == lastSecond - 1 ? elements.length - 1 : indexSecond * 2 + 1
-            for (let indexElement = indexSecond * 2; indexElement <= lastElement; indexElement++) {
-                const thirdFormLevelClass = (indexElement + 1) % 2 == 0 ? 'thirdFormLevelRight' : 'thirdFormLevelLeft'
-                const [name, urlImg, id, inputType, options, dependsInfo, valueTest, alertText, emptyTest] = elements[indexElement]
-                const elementType = inputType == 'select' ? inputType : 'input'
-                const thirdLevel = document.createElement('div')
-                secondFormLevel.appendChild(thirdLevel)
-                thirdLevel.classList.add(thirdFormLevelClass)
-                const input = document.createElement(elementType)
-                thirdLevel.appendChild(input)
-                input.id = id
-                const containerImage = document.createElement('div')
-                thirdLevel.appendChild(containerImage)
-                containerImage.classList.add('containerInputImage')
-                const img = document.createElement('img')
-                containerImage.appendChild(img)
-                img.src = urlImg
-                img.classList.add('inputImage')
-                const label = document.createElement('label')
-                containerImage.appendChild(label)
-                label.classList.add('labelInput')
-                label.htmlFor = id
-                const span = document.createElement('span')
-                label.appendChild(span)
-                span.classList.add('textLabelInput')
-                span.textContent = name
-                if (elementType != 'select') {
-                    input.type = inputType
-                    input.classList.add('inputClass')
-                }
-                if (options.length > 1) {
-                    options.unshift('')
-                    options.forEach(function (option) {//Añadir opciones
-                        const newOption = document.createElement('option')
-                        newOption.text = option
-                        input.add(newOption)
-                    })
-                    input.options[0].style.display = 'none'
-                }
-                if (dependsInfo.length > 1) {
-                    thirdLevel.style.display = 'none'
-                    createDepending(thirdLevel, input, dependsInfo)
-                } else input.required = true
-                validationFunctions(emptyTest, valueTest, alertText, input, span, img)
-            }
-        }
-    }
-    function validationFunctions(emptyTest, valueTest, alertText, element, elementSpan, elementImg) {
-        if (emptyTest) emptyTestFunction(element)
-        const emptyAlert = 'Si no cuenta con este dato, escriba N.A. en este campo'
-        element.addEventListener ('keyup', () => {
-            const value = element.value
-            element.setCustomValidity('')
-            if (emptyTest && value == '') element.setCustomValidity(emptyAlert)
-            if (!valueTest) return
-            const isValid = logicValidation(value, valueTest)
-            if (!isValid) element.setCustomValidity(alertText)
-            elementSpan.classList.toggle('wrongInput', !isValid)
-            elementImg.classList.toggle('wrongInputImage', !isValid)
-        })
-    }
-    function emptyTestFunction(element) {
-        element.setCustomValidity('')
-        if (element.value == '') element.setCustomValidity('Si no cuenta con este dato, escriba N.A. en este campo')
-    }
-    function logicValidation(value, validationData) {
-        const operation = parseInt(validationData.slice(0, 2))
-        const data = validationData.slice(2)
-        switch (operation) {
-            case 0:
-                return value == data
-                break
-            case 1:
-                return value != data
-                break
-            case 2:
-                return value > data
-                break
-            case 3:
-                return value >= data
-                break
-            case 4:
-                return value < data
-                break
-            case 5:
-                return value <= data
-                break
-            case 6: //Longitud del texto en palabras            
-                return logicValidation(value.split(' ').filter(Boolean).length, data)
-                break
-            case 7: //Longitud del texto en tamaño del array
-                return logicValidation(value.length, data)
-                break
-            case 8:
-                return value.includes(data)
-                break
-            case 9:
-                return value.startsWith(data)
-                break
-            case 10:
-                return value.endsWith(data)
-                break
-            case 11:
-                const pattern = new RegExp(data)
-                return value.match(pattern)
-                break
-        }
-    }
-    function createDepending(elementContainer, element, dependsInfo) {
-        const elementDepend = document.getElementById(dependsInfo[0])
-        elementDepend.addEventListener('change', function () {
-            const elementValue = elementDepend.value
-            let isRequired = false
-            let displayMode = 'none'
-            if (elementValue == dependsInfo[1]) {
-                isRequired = true
-                displayMode = ''
-            }
-            elementContainer.style.display = displayMode
-            element.required = isRequired
-        })
-    }
-    function createTable(hours) {
-        for (let day = 0; day < 3 * numDays; day++) {//Generar contenedores fechas
-            const date = document.createElement('th')
-            date.id = day
-            dates.appendChild(date)
-            date.classList.add('tdVisible')
-            if (day > numDays - 1) date.classList.replace('tdVisible', 'tdHidden')
-        }
-        for (let indexDay = 0; indexDay < numDays; indexDay++) {//Generar nombres de días  
-            const day = document.createElement('th')
-            daysRow.appendChild(day)
-            day.textContent = days[indexDay]
-        }
-        for (let rowSlot = 0; rowSlot < slots; rowSlot++) {//Generar horas del servicio
-            const table = document.createElement('table')
-            divTable.appendChild(table)
-            const border = document.createElement('hr')
-            border.classList.add('borderTable')
-            divTable.appendChild(border)
-            const row = document.createElement('tr')
-            table.appendChild(row)
-            row.id = `R${rowSlot}`
-            const hour = document.createElement('th')
-            row.appendChild(hour)
-            hour.textContent = hours[rowSlot]
-            for (let daySlot = 0; daySlot < 3 * numDays; daySlot++) {//Completar filas
-                const id = `${daySlot}.${rowSlot}`
-                const celda = document.createElement('td')
-                row.appendChild(celda)
-                celda.classList.add('tdVisible')
-                celda.id = `c${id}`
-                const radio = document.createElement('input')
-                celda.appendChild(radio)
-                radio.classList.add('radioClass')
-                radio.id = `r${id}`
-                radio.type = 'radio'
-                radio.name = 'dateAppointment'
-                radio.disabled = true
-                radio.required = true
-                radio.checked = false
-                const label = document.createElement('label')
-                celda.appendChild(label)
-                label.textContent = 'Ocupado'
-                label.id = `l${id}`
-                label.classList.add('busyDate')
-                label.setAttribute('for', `r${id}`)
-                if (daySlot > numDays - 1) celda.classList.replace('tdVisible', 'tdHidden')
-            }
-        }
-        fillSchedule()
-    }
-    function fillSchedule() {//Asignación de datos
-        fetch(`${url}?action=3`).then(response => response.json()).then(data => {//Obtener JSON
-            for (let day = 0; day < 3 * numDays; day++) {// All busy
-                for (let slot = 0; slot < slots; slot++) {
-                    const id = `${day}.${slot}`
-                    radio = document.getElementById(`r${id}`)
-                    radio.disabled = true
-                    radio.checked = false
-                    radio.value = null
-                    label = document.getElementById(`l${id}`)
-                    label.className = ''
-                    label.classList.add('busyDate')
-                    label.textContent = 'Ocupado'
-                }
-            }
-            day = 0
-            for (let indexData = 0; indexData < data.length; indexData++) {//Asignar valores
-                const date = data[indexData]
-                if (date.length == 9) {// == 9 Son fechas 29/oct/24
-                    const dateTd = document.getElementById(day)
-                    dateTd.textContent = `${date}`
-                    if (data[indexData + 1].length != 9) {//Es una fecha con franjas activas
-                        for (let slot = 0; slot < slots; slot++) {
-                            if (serviceSchedule[day % numDays][slot] != 0) {//Franja valida != 0
-                                indexData++ //Avanza hasta la siguiente fecha
-                                const datum = data[indexData]
-                                if (datum == 0) continue
-                                const modality = datum.slice(-1)
-                                const id = `${day}.${slot}`
-                                const finalClass = modality == 'V' ? 'freeDateVirtual' : 'freeDateFace'
-                                radio = document.getElementById(`r${id}`)
-                                radio.value = datum
-                                radio.disabled = false
-                                label = document.getElementById(`l${id}`)
-                                label.textContent = 'Disponible'
-                                label.classList.replace('busyDate', finalClass)
-                            }
-                        }
-                    }
-                    day++
-                }
-            }
-            fullScheduleSection.style.display = ''
-        })
-    }
-    function mailTest() {//Verificación correo
-        const datum = mail.value
-        const isValid = datum.endsWith('@unal.edu.co') || datum == ''
-        mail.setCustomValidity(isValid ? '' : noValidMailText)
-        textMail.classList.toggle('wrongInput', !isValid)
-        imgMail.classList.toggle('wrongInputImage', !isValid)
-    }
     typeID.addEventListener('change', function () {//Verificación de tipo de documento
         numberID.type = 'number'
         if (typeID.value == 'Pasaporte') numberID.type = 'text'
@@ -1573,36 +1653,6 @@
         })
         if (linkCase <= 5) department.options[0].style.display = 'none'
     })
-    function previousWeek() {//Muestra la semana previa
-        week--
-        previousWeekButton.disabled = week == 0 ? true : null
-        nextWeekButton.disabled = week == 0 ? false : null
-        showHidden(false)
-    }
-    function nextWeek() {//Muestra la siguiente semana
-        week++
-        nextWeekButton.disabled = week == 2 ? true : null
-        previousWeekButton.disabled = week == 2 ? false : null
-        showHidden(true)
-    }
-    function showHidden(origin) {//Muestra las celdas solicitadas y oculta las actuales
-        const toShow = week * numDays
-        const toHide = origin ? (week - 1) * numDays : (week + 1) * numDays
-        showHideFunction(toShow, true)
-        showHideFunction(toHide, false)
-    }
-    function showHideFunction(week, what) {//Función mostrar u ocultar
-        const initial = what ? 'tdHidden' : 'tdVisible'
-        const final = what ? 'tdVisible' : 'tdHidden'
-        for (let day = 0; day < numDays; day++) {
-            date = document.getElementById(week + day)
-            date.classList.replace(initial, final)
-            for (let slot = 0; slot < slots; slot++) {
-                celda = document.getElementById(`c${week + day}.${slot}`)
-                celda.classList.replace(initial, final)
-            }
-        }
-    }
     form.addEventListener("submit", (event) => {
         clearInterval(refresh)
         event.preventDefault()
@@ -1614,35 +1664,16 @@
         dateVerification.innerText = `${fullDate.slice(0, 9)} a las ${fullDate.slice(28, -1)}`
         verificationModal.style.display = 'flex'
     })
-    function getServiceData() {
-        const data = []
-        elements.forEach((element) => data.push(document.getElementById(element[2]).value))
-        return data
-    }
     cancelModalVerification.addEventListener('click', () => {
         restoreSchedule()
         verificationModal.style.display = 'none'
     })
-    function restoreSchedule() {
-        fillSchedule()
-        refresh = setInterval(fillSchedule, 1 * 60 * 1000)
-    }
     confirmModalVerification.addEventListener('click', () => {//Implementación con GAS
         verificationModal.style.display = 'none'
         loader.style.display = 'flex'
         confirmModalVerification.disabled = true
         google.script.run.withSuccessHandler(responseTest).request(fullDate, formData, serviceData)
     })
-    function responseTest(response) {//Evaluar respuesta del Backend
-        const indexCase = response[0]
-        if (indexCase == 2) {
-            datePenaltyPanel.innerText = response[1]
-            daysPenaltyPanel.innerText = response[2]
-        }
-        loader.style.display = 'none'
-        const requestCase = requestCases[indexCase]
-        requestCase.style.display = 'flex'
-    }
     requestCaseButtons[0].addEventListener('click', () => restRequestCases(requestCases[0]))
     requestCaseButtons[1].addEventListener('click', () => clearForm(requestCases[1]))
     requestCaseButtons[2].addEventListener('click', () => clearForm(requestCases[2]))
@@ -1652,26 +1683,5 @@
     requestCaseButtons[6].addEventListener('click', () => {//Logró la cita
         window.location.href = 'https://ingenieria.bogota.unal.edu.co/es/dependencias/vicedecanatura-de-investigacion-y-extension.html'
     })
-    function restRequestCases(requestCase) {
-        confirmModalVerification.disabled = false
-        requestCase.style.display = 'none'
-        restoreSchedule()
-    }
-    function clearForm(requestCase) {//Está sancionado de alguna manera
-        requestCase.style.display = 'none'
-        for (let i = 0; i < form.elements.length; i++) {
-            const elemento = form.elements[i]
-            if (elemento.tagName === 'INPUT' || elemento.tagName === 'SELECT') {
-                elemento.value = ''
-                sendRequestButton.value = 'SOLICITAR CITA'
-            }
-        }
-        confirmModalVerification.disabled = false
-        containerDepartment.style.display = 'none'
-        department.required = false
-        while (week != 0) previousWeek()
-        window.scrollTo({ top: 0, behavior: 'auto' })
-        restoreSchedule()
-    }
 </script>
 </html>
