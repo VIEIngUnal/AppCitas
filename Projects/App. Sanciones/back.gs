@@ -1,18 +1,17 @@
-//Base de datos
-//[wilson, Viviana, Cristian, Juan, Karol]
+//Base de datos [0C. Internas, 1A. Administrativo, 2C. Externas, 3C. Estilo, 4A. Grupos de Investigación]
+//Constantes útiles
 const dateHistory = SpreadsheetApp.openById('17nhyAQs_x35lO6o0s1k9RQfIsj6bNPm5trM9B-Y7FtY')
 const penaltyHistory = SpreadsheetApp.openById('1xLGkqFusH6L2tumVxuWYjkwS1XtRKZF8gyt53RlaytU')
 const sanctionedHistory = penaltyHistory.getSheetByName('HISTORIAL DE SANCIONADOS')
 const currentSanctioned = penaltyHistory.getSheetByName('LISTA TEMPORAL')
 const dataBase = SpreadsheetApp.openById('1REbxAvc83wme_uIxwxmjEZvBpSX9Slc0hxfA2S8r5sc')
+const schedulesSheet = dataBase.getSheetByName('Horarios')
 const appData = dataBase.getSheetByName('App. Citas')
 const sheetNames = appData.getRange('3:3').getValues().flat()
 const emailsProfessionals = appData.getRange('5:5').getValues().flat()
 let guestsNumber = appData.getRange('13:13').getValues().flat()
-let alwaysInvited = guestsNumber.join(',').split(',')
-guestsNumber = guestsNumber.map(guests => guests.split(',').map(guest => guest.trim()))
-guestsNumber = guestsNumber.map(guests => guests.length + 1)
-alwaysInvited = [...new Set(alwaysInvited.map(email => email.trim()))]
+let alwaysInvited = [...new Set(guestsNumber.join(',').split(',').map(email => email.trim()))]
+guestsNumber = guestsNumber.map(guests => guests.split(',').map(guest => guest.trim()).length + 1)
 const titles = appData.getRange('15:15').getValues().flat()
 let rawSanctionData = appData.getRange('23:23').getValues().flat()
 rawSanctionData = rawSanctionData.map(element => JSON.parse(element))
@@ -20,20 +19,55 @@ const countTimesSanctioned = rawSanctionData.map(element => element[0])
 const currentColumns = rawSanctionData.map(element => element[1])
 const limiteTimesSanctioned = appData.getRange('25:25').getValues().flat().map(Number)
 const sanctionsDays = appData.getRange('27:27').getValues().flat().map(days => JSON.parse(days))
-//Constantes útiles
+const nameDays = ['lunes', 'martes', 'miércoles', 'jueves', 'viernes']
 const months = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
 //Funciones
-function doGet() {//Llamado del archivo .html
-  return HtmlService.createHtmlOutputFromFile("s").setTitle('App. Sanciones');
+function doGet(e) {//Llamado el sitio web
+  if (e.parameter.action == '1') return getSchedules()
+  return HtmlService.createHtmlOutputFromFile("webSite").setTitle('App. Sanciones');
 }
+
+function getSchedules() {
+  let column = 1
+  const hours = []
+  const schedules = []
+  sheetNames.forEach(() => {
+    const rawData = JSON.parse(schedulesSheet.getRange(1, column).getValue())
+    hours.push(rawData[0])
+    schedules.push(rawData[1])
+    column += 6
+  })
+  for (let indexSchedule = 0; indexSchedule < schedules.length; indexSchedule++) {
+    const hoursService = hours[indexSchedule]
+    for (let indexDay = 0; indexDay < 5; indexDay++) {
+      const day = schedules[indexSchedule][indexDay]
+      if (day.filter(Boolean).length == 0) {
+        schedules[indexSchedule][indexDay] = [`No hay horario definido para los ${nameDays[indexDay]}`]
+        continue
+      }
+      const hoursDay = ['']
+      day.forEach((slot, index) => {
+        if (slot) hoursDay.push(hoursService[index])
+      })
+      schedules[indexSchedule][indexDay] = hoursDay
+    }
+  }
+  return arrayToJSON(schedules)
+}
+
+function arrayToJSON(array) {
+  const textOutput = ContentService.createTextOutput(JSON.stringify(array))
+  return textOutput.setMimeType(ContentService.MimeType.JSON)
+}
+
 function request(toRead) {//Buscar cita toRead = [Fecha, hora, servicio]
-  let answer = [];//titulo, nombre, correo, # sanciones
+  let answer = [] //titulo, nombre, correo, # sanciones
   const date = new Date(toRead[0])
   const fullHour = toRead[1]
   const service = toRead[2]
   const initialTime = getInitialTime(fullHour)
-  const calendar = CalendarApp.getCalendarById(emailsProfessionals[service]);
-  const eventsDay = calendar.getEventsForDay(date);
+  const calendar = CalendarApp.getCalendarById(emailsProfessionals[service])
+  const eventsDay = calendar.getEventsForDay(date)
   for (let indexEvent = 0; indexEvent < eventsDay.length; indexEvent++) {
     const event = eventsDay[indexEvent]
     const startTime = event.getStartTime()
@@ -50,6 +84,7 @@ function request(toRead) {//Buscar cita toRead = [Fecha, hora, servicio]
   }
   return answer
 }
+
 function getInitialTime(rawHour) {
   const testHour = rawHour.slice(6, 10) != 'a.m.' && rawHour.slice(0, 2) != '12'
   let initialHour = parseFloat(rawHour.slice(0, 2))
@@ -58,6 +93,7 @@ function getInitialTime(rawHour) {
   const initialTime = initialHour + initialMinutes
   return initialTime
 }
+
 function getEmailSanctioned(guestList, service, date, fullHour) {//Obtener email inasistente
   let emailSanctioned = null
   const guestNumber = guestList.length
@@ -80,6 +116,7 @@ function getEmailSanctioned(guestList, service, date, fullHour) {//Obtener email
   }
   return emailSanctioned
 }
+
 function findSanction(service, email) {//Datos en historial
   const peopleHistory = sanctionedHistory.getRange('B2:B').getValues()
   for (let indexPerson = 0; indexPerson < peopleHistory.length; indexPerson++) {
@@ -92,6 +129,7 @@ function findSanction(service, email) {//Datos en historial
   }
   return [0] //No se encontró -> # sanciones 0
 }
+
 function penalize(toRead) {//Sancionar, toRead = [servicio, correo, hora, nombre, fecha]
   const [service, emailSanctioned, hour, name, date] = toRead
   const sanctionedDate = dateFormat(date)
@@ -129,10 +167,12 @@ function penalize(toRead) {//Sancionar, toRead = [servicio, correo, hora, nombre
   }
   return 3 //Sanción con exito
 }
+
 function dateFormat(fullDate) {//Cambiar formato fecha 
   const date = new Date(fullDate)
   return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
 }
+
 function findCurrent(service, email) {//Datos sanción vigente
   const serviceColumn = currentColumns[service]
   const currentPeople = currentSanctioned.getRange('B2:B').getValues()

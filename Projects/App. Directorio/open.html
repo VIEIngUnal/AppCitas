@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directorio VIE</title>
+    <style>
+      input{
+          border-radius: 10px;
+          border: 2px solid #ccd4cc;
+          width: 89%;
+          font-size: 120%;
+      }
+      .errorText{
+          text-align: justify;
+      }
+      b{
+          font-size: larger;
+      }
+      #email{
+          color: blue;
+      }
+      .textUser{
+          padding: 1.5%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          align-items: center;
+          background-color: white;
+          border-radius: 30px;
+          border: 2px solid #ccd4cc;
+          width: 27%;
+          height: 25%;
+          font-size: larger;
+      }
+      @keyframes spin {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      .containerLoader2 {
+          display: none;
+          position: fixed;
+          justify-content: center;
+          align-items: center;  
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(255, 255, 255, 0.5);
+          z-index: 1;
+      }
+      .containerLoader {
+          display: flex;
+          position: fixed;
+          justify-content: center;
+          align-items: center;  
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(255, 255, 255, 0.5);
+          z-index: 2;
+      }
+      .loader {
+          display: flex;
+          z-index: 1;
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          border: 5px solid #26a69a;
+          border-top-color: transparent;
+          animation: spin 1.2s linear infinite;
+      }
+      .firstLevel{
+          display: grid;
+          align-content: center;
+          padding: 0;
+          margin: 0;
+          margin-top: 1%;
+          margin-left: 5%;
+          width: 90%;
+          height: 67vh;
+          font-size: medium;
+      }
+      #tableDiv{
+          display: grid;
+          overflow: auto;
+          padding: 0;
+          margin: 0;
+      }
+      h1{
+          margin: 0;
+          padding: 0;
+          margin-bottom: 1%;
+      }
+      body{ 
+          text-align: center;
+      }
+      tr{
+          background-color: #196b24;
+      }
+      th {
+          color: white;
+          height: 5vh;
+      }
+      td{
+          max-height: 5vh;
+          height: 5vh;
+      }
+      .td1{
+          background-color: #ccd4cc;
+      }
+      .td2{
+          background-color: #e7ebe8;
+      }
+      .ads{
+          margin: 0;
+          padding: 0;
+          font-size: 1.8vw;
+      }
+      #lawDiv{
+          margin: 0;
+          padding: 0;
+          width: 90%;
+          margin-left: 5%;
+      }
+      .law{
+          text-align: justify;
+      }
+      .editButton{
+          background-color: yellow;
+      }
+      .editionPanelButton{
+          width: 40%;
+      }
+      label {
+          display: flex;
+          font-size: medium;
+      }
+      .inputEdit{
+          background-color: rgb(243, 243, 243);
+          border: 1px solid gainsboro;
+          margin: 0;
+          padding: 0;
+          padding-left: 2%;
+          font-size: medium;
+          width: 75%;
+          outline: 0;
+      }
+      .inputEdit:hover{
+          background-color: white;
+      }
+      .inputEdit:focus{
+          background-color: white;
+      }
+      .itemEdit {
+          margin: 0;
+          margin-bottom: 1%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+      }
+      .editContainer{
+          padding: 1.5%;
+          display: flex;
+          flex-direction: column;
+          background-color: white;
+          border-radius: 30px;
+          border: 2px solid #ccd4cc;
+          width: 34%;
+          font-size: larger;
+      }
+      .close{
+        cursor: pointer;
+        color: white;
+        text-shadow: 0px 0px 3px gray;
+        font-size: 20px;
+        width: 25%;
+        height: 20%;
+        background-color: yellowgreen;
+        border: 0;  
+        border-radius: 10px;
+      }
+      .close:hover{
+        background-color: #26a69a;
+      }
+    </style>
+</head>
+<body>
+    <h1>Directorio - Vicedecanatura de Investigación y Extensión</h1>
+    <input type = "text" id = "buscador" placeholder = "Buscar en el directorio" onkeyup = "buscar()">
+    <div class = 'firstLevel'>
+        <div id = 'tableDiv'>
+            <p class = "ads">Para iniciar una búsqueda indique nombre, cédula, correo, relación, dependencia, oficina, extensión o teléfono</p>
+        </div>
+    </div>
+    <div id = 'lawDiv'>
+        <p class = "law">Tenga en cuenta que la información suministrada es confidencial y los datos de carácter personal recolectados se encuentran bajo medidas que garantizan la seguridad, confidencialidad e integridad, y su tratamiento se realiza bajo la Política de Tratamiento de Datos Personales de la Universidad Nacional de Colombia, la cual podrá consultar en el siguiente enlace <a class = "linkAuthorization" href = "http://www.legal.unal.edu.co/rlunal/home/doc.jsp?d_i = 97992" target = "_blank">Política de Tratamiento de Datos Personales</a>.</p>
+    </div>
+    <div id = "waiter" class = "containerLoader"><div class = "loader"></div></div>
+    <div id = "wrongUser" class = "containerLoader2">
+        <div class="textUser">
+            <b>Acceso Denegado</b>
+            <p class="errorText">El usuario <a id="email"></a> no tiene los permisos necesarios para consultar esta información</p>
+        </div>
+    </div>
+    <div id = "wrongEditUser" class = "containerLoader2">
+        <div class="textUser">
+            <b>Acceso Denegado</b>
+            <p class="errorText">El usuario <a id="emailEditAd"></a> no tiene los permisos necesarios para realizar cambios en la base de datos</p>
+            <button class="close" id='closeEditModal'>Aceptar</button>
+        </div>
+    </div>
+    <div id = "modalEdit" class = "containerLoader2">
+        <div class="editContainer">            
+            <b style="margin-bottom: 3%;">Editar información</b>
+            <div class="itemEdit">
+                <label for="editName">Nombre</label>
+                <input class="inputEdit" type="text" id="editName">
+            </div>
+            <div class="itemEdit">
+                <label for="editCC">Cédula</label>
+                <input class="inputEdit" type="text" id="editCC">
+            </div>
+            <div class="itemEdit">
+                <label for="editEmail">Correo</label>
+                <input class="inputEdit" type="text" id="editEmail">
+            </div>
+            <div class="itemEdit">
+                <label for="editRelation">Relación</label>
+                <input class="inputEdit" type="text" id="editRelation">
+            </div>
+            <div class="itemEdit">
+                <label for="editDepartment">Dependencia</label>
+                <input class="inputEdit" type="text" id="editDepartment">
+            </div>
+            <div class="itemEdit">
+                <label for="editOffice">Oficina</label>
+                <input class="inputEdit" type="text" id="editOffice">
+            </div>
+            <div class="itemEdit">
+                <label for="editExtension">Extensión</label>
+                <input class="inputEdit" type="text" id="editExtension">
+            </div>
+            <div class="itemEdit">
+                <label for="editPhone">Teléfono</label>
+                <input class="inputEdit" type="text" id="editPhone">
+            </div>
+            <div style="margin-top: 3%;">
+                <button class="editionPanelButton" id="sendChange">Enviar</button>
+                <button class="editionPanelButton" id="cancelChange">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+  const tablaDiv = document.getElementById('tableDiv');
+  const loader = document.getElementById('waiter')
+  const entradaBuscador = document.getElementById('buscador');
+  const titulosTabla = ['Nombre', 'Cédula', 'Correo', 'Relación', 'Dependencia', 'Oficina', 'Extensión', 'Teléfono', 'Editar'];
+  var datos = null;
+  var url = null;
+  var intervaloID = setInterval(reload, 6000);
+  const modalEdit = document.getElementById('modalEdit');
+  userValid();
+  function userValid() {
+      google.script.run.withSuccessHandler(function(data) {
+          url = data;
+          if (url.length > 1) {
+              fetch(url).then(response => response.json()).then(data => {
+                url = null; datos = data; loader.style.display = 'none';
+              })
+          } else {
+              document.getElementById('email').textContent = url[0];
+              document.getElementById('wrongUser').style.display = 'flex';
+              loader.style.display = 'none';
+          }
+      }).getData();
+  }
+
+  function reload() {
+      tablaDiv.innerHTML = '';
+      tablaDiv.style.alignContent = 'center';
+      let advertise = document.createElement('p');
+      advertise.textContent = 'Para iniciar una búsqueda indique nombre, cédula, correo, relación, dependencia, oficina, extensión o teléfono';
+      advertise.classList.add('ads');
+      tablaDiv.appendChild(advertise);
+      entradaBuscador.value = '';
+  }
+
+  function complexFilter(words, column) {
+      let aux = [];
+      for (let i = 0; i < words.length; i++) {
+          aux.push(column.filter(item => item.toString().toLowerCase().includes(words[i])));
+      }
+      array1 = aux[0];
+      array2 = aux[1];
+      let intersect = (array1, array2) => {
+          return array1.filter(value => array2.includes(value));
+      };
+      let output = aux.reduce((acc, currentArray) => {
+          return intersect(acc, currentArray);
+      });
+      return output;
+  }
+
+  function findSearch(words) {
+      let aux = [];
+      let results = [];
+      for (let i = 0; i < 9; i++) {
+          let column = datos[i];
+          let newSearch = words.length > 1 ? complexFilter(words, column) : column.filter(item => item.toString().toLowerCase().includes(words));
+          for (let j = 0; j < newSearch.length; j++) {
+              aux.push(column.indexOf(newSearch[j]))
+          }
+      }
+      aux = [...new Set(aux)];
+      for (i = 0; i < aux.length; i++) {
+          let row = [];
+          for (let j = 0; j < 9; j++) {
+              row.push(datos[j][aux[i]])
+          }
+          results.push(row);
+      }
+      return [results, results.length];
+  }
+
+  function sort(data, syllable) {
+      aux = [];
+      output = [];
+      for (let i = 0; i < data.length; i++) {
+          currentRow = data[i];
+          currentName = data[i][0];
+          curreNtSyllable = currentName.slice(0, 2).toLowerCase();
+          if (syllable == curreNtSyllable) {
+              aux.unshift(currentRow)
+          } else if (syllable[0] == curreNtSyllable[0]) {
+              output.unshift(currentRow)
+          } else {
+              output.push(currentRow)
+          }
+      }
+      aux.forEach((element) => output.unshift(element));
+      return output
+  }
+
+  function createTable(rows) {
+      tablaDiv.innerHTML = '';
+      let tabla = document.createElement('table')
+      tabla.id = 'results'
+      let titlesRow = document.createElement('tr');
+      tabla.appendChild(titlesRow);
+      for (let i = 0; i < 9; i++) {
+          let title = document.createElement('th');
+          title.textContent = titulosTabla[i];
+          titlesRow.appendChild(title);
+      }
+      for (let i = 0; i < rows; i++) {
+          let row = document.createElement('tr');
+          let rowId = 'C' + (i + 1);
+          tabla.appendChild(row);
+          for (let j = 0; j < 9; j++) { // 1 Nombre, 2 Cédula, 3 Correo...
+              let column = document.createElement('td')
+              column.id = rowId + (j + 1); // C123 Extensión, fila 12 columna 3
+              row.appendChild(column);
+          }
+      }
+      tablaDiv.appendChild(tabla);
+  }
+
+  function buscar() {
+      tablaDiv.innerHTML = '';
+      let input = entradaBuscador.value.toLowerCase();
+      tablaDiv.style.alignContent = 'center';
+      if (input[0] == ' ') {
+          clearInterval(intervaloID);
+          intervaloID = setInterval(reload, 6000);
+          let advertise = document.createElement('p');
+          advertise.classList.add('ads');
+          advertise.textContent = 'Entrada no valida';
+          tablaDiv.appendChild(advertise);
+      } else if (input != '') {
+          clearInterval(intervaloID);
+          let words = input.split(' ').filter(Boolean);
+          let [results, sizeResults] = findSearch(words);
+          results = sort(results, input.slice(0, 2))
+          tablaDiv.style.alignContent = 'center';
+          let advertise = document.createElement('p');
+          advertise.classList.add('ads');
+          advertise.textContent = 'No se encontraron resultados';
+          tablaDiv.appendChild(advertise);
+          if (results.length > 0) {
+              createTable(sizeResults);
+              tablaDiv.style.alignContent = 'normal';
+              c = 1;
+              for (let i = 0; i < sizeResults; i++) {
+                  let row = i + 1;
+                  let cellClass = row % 2 == 0 ? 'td2' : 'td1';
+                  for (let j = 0; j < 9; j++) {
+                      let id = 'C' + row + (j + 1);
+                      let cell = document.getElementById(id);
+                      let value = results[i][j];
+                      cell.classList.add(cellClass);
+                      if (j == 8) {
+                          let button = document.createElement('button');
+                          button.onclick = changeData
+                          button.classList.add('editButton')
+                          button.textContent = 'Editar'
+                          button.id = id.slice(0, -1)
+                          button.value = value
+                          cell.appendChild(button)
+                          continue;
+                      }
+                      cell.textContent = value == "" ? 'No reportado' : results[i][j];
+                  }
+              }
+          }
+      } else {
+          reload();
+      }
+  }
+
+  const sendChange = document.getElementById('sendChange');
+  const cancelChange = document.getElementById('cancelChange');
+  cancelChange.onclick = () => { modalEdit.style.display = 'none' }
+  sendChange.onclick = sendNewData
+  const editName = document.getElementById('editName')
+  const editCC = document.getElementById('editCC')
+  const editEmail = document.getElementById('editEmail')
+  const editRelation = document.getElementById('editRelation')
+  const editDepartment = document.getElementById('editDepartment')
+  const editOffice = document.getElementById('editOffice')
+  const editExtension = document.getElementById('editExtension')
+  const editPhone = document.getElementById('editPhone')
+  const editElements = [editName, editCC, editEmail, editRelation, editDepartment, editOffice, editExtension, editPhone]
+  var currentValues = [];
+  var toSendValues = [];
+  var rowId;
+  var baseDataRow;
+
+  function changeData() {
+      rowId = this.id;
+      currentValues = [];
+      for (let i = 0; i < 8; i++) {
+        let value = document.getElementById(`${rowId}${String(i + 1)}`).textContent;
+        editElements[i].value = value
+        currentValues.push(value)
+      }
+      baseDataRow = this.value
+      modalEdit.style.display = 'flex'
+  }
+
+  function sendNewData() {
+      loader.style.display = 'flex';
+      toSendValues = []
+      for (let i = 0; i < 8; i++) {
+        let value = editElements[i].value;
+        value = value == '' ? 'No reportado' : value;
+        toSendValues.push(value)
+      }
+      let isThereChanges = currentValues.every((value, index)=> value === toSendValues[index]);
+      if (!isThereChanges) {
+        google.script.run.withSuccessHandler(evaluteResponse).editRow(baseDataRow, toSendValues);
+      } else {
+        modalEdit.style.display = 'none';
+        loader.style.display = 'none';
+      }
+  }
+  const emailEditAd = document.getElementById('emailEditAd');
+  const wrongEditUser = document.getElementById('wrongEditUser');
+  function evaluteResponse(response) {
+      loader.style.display = 'none';
+      modalEdit.style.display = 'none'
+      if (response != 'Done') {
+          wrongEditUser.style.display = 'flex'
+          emailEditAd.textContent = response
+      } else {
+        for (let i = 0; i < 8; i++) {
+          let value = toSendValues[i];
+          datos[i][baseDataRow - 2] = value;
+          document.getElementById(`${rowId}${String(i + 1)}`).textContent = value;
+        }
+      }
+  }
+  const closeEditModal = document.getElementById('closeEditModal');
+  closeEditModal.onclick = () => {wrongEditUser.style.display = 'none'}
+</script>
+</html>

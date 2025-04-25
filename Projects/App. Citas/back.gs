@@ -1,5 +1,5 @@
-//SOLO DEBE CAMBIAR LA CONSTANTE serviceIndex, NADA MÁS
-const serviceIndex = 6
+//SOLO DEBE CAMBIAR LA CONSTANTE serviceIndex, en ambos archivos ¡¡¡NADA MÁS!!!
+const serviceIndex = 4
 //Base de datos
 const dataBase = SpreadsheetApp.openById('1REbxAvc83wme_uIxwxmjEZvBpSX9Slc0hxfA2S8r5sc')
 const appData = dataBase.getSheetByName('App. Citas')
@@ -9,11 +9,9 @@ const serviceWeeks = appData.getRange(9, serviceIndex).getValue()
 const durationDate = appData.getRange(11, serviceIndex).getValue()
 const alwaysInvited = appData.getRange(13, serviceIndex).getValue()
 var title = appData.getRange(15, serviceIndex).getValue()
-const modalitiesText = appData.getRange(17, serviceIndex).getValue().split(';').filter(Boolean)
-var [orderData, tests] = appData.getRange(21, serviceIndex).getValue().split(';').filter(Boolean)
-orderData = orderData.split(',')
-tests = tests.split(',')
-const sanctionsColumns = appData.getRange(23, serviceIndex).getValue().split(',').filter(Boolean).map(Number)
+const modalitiesText = JSON.parse(appData.getRange(17, serviceIndex).getValue())
+const [orderData, tests] = JSON.parse(appData.getRange(21, serviceIndex).getValue())
+const sanctionsColumns = JSON.parse(appData.getRange(23, serviceIndex).getValue())
 const sanctionsLimit = appData.getRange(25, serviceIndex).getValue()
 //Constantes útiles
 const daysEvents = serviceWeeks * 7 - 1
@@ -27,7 +25,7 @@ const currentSanctioned = penaltyHistory.getSheetByName('LISTA TEMPORAL')
 const calendar = CalendarApp.getCalendarById(emailProfessional)
 //Funciones
 function doGet() {//Llamado del archivo .html
-  return HtmlService.createHtmlOutputFromFile("t").setTitle('Solicitud de cita')
+  return HtmlService.createHtmlOutputFromFile("webSite").setTitle('Solicitud de cita')
 }
 function request(fullDateAppointment, formData, serviceData) {//Verificación de usuario
   const emailApplicant = formData[1]
@@ -55,7 +53,7 @@ function request(fullDateAppointment, formData, serviceData) {//Verificación de
   for (let userSanctioned = 0; userSanctioned < peopleHistory.length; userSanctioned++) {
     if (peopleHistory[userSanctioned] == emailApplicant) {
       const row = userSanctioned + 2
-      if (sanctionedHistory.getRange(row, sanctionsColumns[0]).getValue() > sanctionsLimit) return [1] //Sancionado de por vida
+      if (sanctionedHistory.getRange(row, sanctionsColumns[0]).getValue() >= sanctionsLimit) return [1] //Sancionado de por vida
     }
   }
   const currentPeople = currentSanctioned.getRange('B2:B').getValues()
@@ -120,16 +118,16 @@ function createAppointment(emailApplicant, formData, serviceData, dates) {//Crea
   sheetHistory.getRange("4:4").setValues(detailsService).setFontWeight("normal")
   let invitados = `${emailProfessional},${emailApplicant},${alwaysInvited}`
   let dateDescription = 'La Vicedecanatura de Investigación y Extensión se permite informarle que su cita ha sido asignada según los siguientes términos.\n\n' +
+    `<div style='font-size: 20px'><b>Lugar:</b> <u>${location}</u></div>\n` +
     `<b>Nombre:</b> ${userName}\n` +
     `<b>Correo electrónico:</b> ${formData[1]}\n` +
     `<b>Identificación:</b> ${formData[2]} - ${formData[3]}\n` +
     `<b>Teléfono:</b> ${formData[4]}\n` +
     `<b>Tipo de vinculación:</b> ${formData[5]}\n` +
     `<b>Departamento o Programa:</b> ${formData[6]}\n` +
-    bodyService(serviceData) +
-    `<b>Lugar:</b> ${location}`
+    bodyService(serviceData)
   let meetUrl = false
-  if (modality == 'V') {
+  if (modality) {
     const eventData = {
       description: dateDescription,
       guests: invitados,
@@ -145,7 +143,7 @@ function createAppointment(emailApplicant, formData, serviceData, dates) {//Crea
       'start': { 'dateTime': dateAppointment.toISOString(), 'timeZone': 'America/Bogota'},
       'end': { 'dateTime': endTime.toISOString(), 'timeZone': 'America/Bogota'},
       'attendees': invitados, 'conferenceData': null
-    };
+    }
     Calendar.Events.insert(eventData, emailProfessional, {
       conferenceDataVersion: 0,
       sendUpdates: 'all'
@@ -171,7 +169,7 @@ function dataValidation(serviceData) {//01Otro...
   for (let i = 0; i < tests.length; i++) {//Si el primer valor es igual a Otro, asignar el segundo valor al primero
     const test = tests[i]
     const initial = test[0]
-    const final = test[0]    
+    const final = test[1]    
     if (serviceData[initial] == test.slice(2)) serviceData[initial] = serviceData[final]
   }
 }
