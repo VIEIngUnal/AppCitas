@@ -10,7 +10,7 @@ const categoriesColumn = dataBase.getRange('31:31').getValues().flat()
 const servicesCategories = []
 rawCategories.forEach((categories) => categories.forEach((category) => servicesCategories.push(category)))
 //Funciones
-function isDecember() { //Hace un consolidado el ultimo día del año a las 23:00 horas
+function currentYearConsolidated() { //Hace un consolidado el ultimo día del año a las 22:00 horas
   const month = (new Date()).getMonth()
   if(month == 11) createConsolidated()
 }

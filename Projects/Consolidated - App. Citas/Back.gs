@@ -1,9 +1,10 @@
 //Constantes utiles
-const dataBase = SpreadsheetApp.openById('1REbxAvc83wme_uIxwxmjEZvBpSX9Slc0hxfA2S8r5sc') 
+const dataBase = SpreadsheetApp.openById('1REbxAvc83wme_uIxwxmjEZvBpSX9Slc0hxfA2S8r5sc').getSheetByName('App. Citas')
 const cancellationSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Canceladas')
 var alwaysInvitedEmails = dataBase.getRange('13:13').getValues().flat()
 const eventTitles = dataBase.getRange('15:15').getValues().flat()
 const professionals = dataBase.getRange('5:5').getValues().flat()
+Logger.log(professionals)
 const servicesId = dataBase.getRange('7:7').getValues().flat()
 const threeWeeksMilis = 20*24*60*60*1000
 const oneDayMilis = 24*60*60*1000
@@ -26,6 +27,7 @@ function appointmentEliminator() {
   let lastDate = new Date(initialDate.getTime() + threeWeeksMilis)
   for (let service = 0; service < professionals.length; service++) {
     try{
+      Logger.log(professionals[service])
       let events = CalendarApp.getCalendarById(professionals[service]).getEvents(initialDate, lastDate)
       eventsValidation(service, events)
     }catch(e){

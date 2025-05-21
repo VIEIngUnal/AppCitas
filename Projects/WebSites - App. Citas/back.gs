@@ -1,5 +1,5 @@
 //SOLO DEBE CAMBIAR LA CONSTANTE serviceIndex, en ambos archivos ¡¡¡NADA MÁS!!!
-const serviceIndex = 4
+const serviceIndex = 3
 //Base de datos
 const dataBase = SpreadsheetApp.openById('1REbxAvc83wme_uIxwxmjEZvBpSX9Slc0hxfA2S8r5sc')
 const appData = dataBase.getSheetByName('App. Citas')

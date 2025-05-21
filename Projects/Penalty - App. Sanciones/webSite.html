@@ -376,7 +376,7 @@
   </shield>
   <body>
     <div class = "heads">
-      <img src = "https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/escudo-Unal.png?raw=true" class = "shield">
+      <img src = "https://raw.githubusercontent.com/VIEIngUnal/AppCitas/refs/heads/main/Resources/escudo-Unal.png" class = "shield">
       <div class = "titlePage">
         <h1>Formulario de Sanciones</h1>
       </div>
@@ -391,7 +391,7 @@
           <div class = "thirdLevelLeft">
             <input id = "date" type = "date" class = "inputClass" required>
             <div class = "contenedor">
-              <img src = "https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/fecha.png?raw=true" class = "inputImage">
+              <img src = "https://raw.githubusercontent.com/VIEIngUnal/AppCitas/refs/heads/main/Resources/fecha.png" class = "inputImage">
               <label for = "date" class = "labelInput">
                 <span class = "textLabelInput">Fecha de la cita</span>
               </label>
@@ -400,14 +400,9 @@
           <div class = "thirdLevelRight">
             <select id = "service" disabled = "true" required>
               <option value = '' disabled selected style = "display:none;"></option>
-              <option value = 3>Corrección de Estilo de Textos en Inglés y Español</option>
-              <option value = 1>Apoyo a Gestión Administrativa de Proyectos</option>
-              <option value = 2>Proyectos Externos, Convenios y Convocatorias Externas</option>
-              <option value = 0>Proyectos Internos, Convocatorias Internas y Movilidades</option>
-              <option value = 4>Apoyo para el manejo de las plataformas CVLac y GrupLac</option>
             </select>
             <div class = "contenedor">
-              <img src = "https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/servicio.png?raw=true" class = "inputImage">
+              <img src = "https://raw.githubusercontent.com/VIEIngUnal/AppCitas/refs/heads/main/Resources/servicio.png" class = "inputImage">
               <label for = "service" class = "labelInput">
                 <span class = "textLabelInput">Servicio de apoyo</span>
               </label>
@@ -420,7 +415,7 @@
               <option>Seleccione un servicio de apoyo.</option>
             </select>
             <div class = "contenedor"> 
-              <img src = "https://github.com/VicedecanaturaUnal/AppCitas/blob/main/Resources/hora.png?raw=true" class = "inputImage">
+              <img src = "https://raw.githubusercontent.com/VIEIngUnal/AppCitas/refs/heads/main/Resources/hora.png" class = "inputImage">
               <label for = "hour" class = "labelInput">
                 <span class = "textLabelInput">Hora de la cita</span>
               </label>
@@ -471,19 +466,19 @@
   </body>
   <script>
     //Elementos del formulario
-    const form = document.getElementById('form');
-    const date = document.getElementById('date');
-    date.value = getCurrentDate();
-    const hour = document.getElementById("hour");
-    const service = document.getElementById("service");
+    const form = document.getElementById('form')
+    const date = document.getElementById('date')
+    date.value = getCurrentDate()
+    const hour = document.getElementById("hour")
+    const service = document.getElementById("service")
     //Casos y detalles de cita
-    const caseSearch1 = document.getElementById('caseSearch_1');
-    const caseSearch2 = document.getElementById('caseSearch_2');
-    const caseSanction1 = document.getElementById('caseSanction_1');
-    const caseSanction2 = document.getElementById('caseSanction_2');
-    const caseSanction3 = document.getElementById('caseSanction_3');
-    const titleUser = document.getElementById('titleUser');
-    const hourUser = document.getElementById('hourUser');
+    const caseSearch1 = document.getElementById('caseSearch_1')
+    const caseSearch2 = document.getElementById('caseSearch_2')
+    const caseSanction1 = document.getElementById('caseSanction_1')
+    const caseSanction2 = document.getElementById('caseSanction_2')
+    const caseSanction3 = document.getElementById('caseSanction_3')
+    const titleUser = document.getElementById('titleUser')
+    const hourUser = document.getElementById('hourUser')
     const nameUser = document.getElementById('nameUser')
     const emailUser = document.getElementById('emailUser')
     const timesUser = document.getElementById('timesUser')
@@ -492,94 +487,105 @@
     const search = document.getElementById('search')
     const sanctionButton = document.getElementById('sanctionButton')
     const url = 'https://script.google.com/macros/s/AKfycbxsFNjHvEeVMv1jXVQuck168dP-wQmB1um5WEE_LNERQqpKWTSF7AXNlpBVv-g4IWVFKg/exec?action=1'
+    var dataServices
     var schedules
     fetch(url).then(response => response.json()).then(data => {
-      schedules = data
+      dataServices = data
+      dataServices[1].forEach((serviceName, indexService) => {
+        const newOption = document.createElement("option")
+        newOption.text = serviceName
+        newOption.value = indexService
+        service.add(newOption)
+      })
       service.disabled = false
     })
     // Funciones
     function getCurrentDate() {//Obtener fecha actual
-      const currentDate = new Date();
-      const year = currentDate.getFullYear();
-      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-      const day = String(currentDate.getDate()).padStart(2, '0');
-      return `${year}-${month}-${day}`;
+      const currentDate = new Date()
+      const year = currentDate.getFullYear()
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0')
+      const day = String(currentDate.getDate()).padStart(2, '0')
+      return `${year}-${month}-${day}`
     }
     form.addEventListener("change", function(){//Evaluar cambios
-      var changedElement = event.target;
-      if (changedElement.id != 'hour') {serviceTest(parseInt(service.value));}
-      hiddenAllIssues();
+      var changedElement = event.target
+      if (changedElement.id != 'hour') serviceTest(parseInt(service.value))
+      hiddenAllIssues()
     })
     function hiddenAllIssues() {//Ocultar cualquier resultado
-      caseSearch1.style.display = 'none'; caseSearch2.style.display = 'none'; caseSanction1.style.display = 'none';
-      caseSanction2.style.display = 'none'; caseSanction3.style.display = 'none';
+      caseSearch1.style.display = 'none'
+      caseSearch2.style.display = 'none'
+      caseSanction1.style.display = 'none'
+      caseSanction2.style.display = 'none'
+      caseSanction3.style.display = 'none'
     }
     form.addEventListener("submit", function(event) {//Solicitar datos de cita 
-      event.preventDefault();
-      let toSend = [date.value + 'T00:00:01', hour.value, service.value];
-      waiting.style.display = 'flex';
-      google.script.run.withSuccessHandler(responseTest).request(toSend);
-    });
+      event.preventDefault()
+      let toSend = [date.value + 'T00:00:01', hour.value, service.value]
+      waiting.style.display = 'flex'
+      google.script.run.withSuccessHandler(responseTest).dateRequest(toSend)
+    })
     function responseTest(response) {//Evaluar respuesta de backend
-      if(response.length == 0){
-        hiddenAllIssues();
-        caseSearch1.style.display = '';
-      }else{
-        hiddenAllIssues();
-        titleUser.innerText = response[0];//Titulo del evento
-        hourUser.innerText = timeSlot();//Hora del evento
-        nameUser.innerText = response[1];//Nombre inasistente
-        emailUser.innerText = response[2];//Correo inasistente
-        timesUser.innerText = response[3] == 1 ? response[3] + " vez": response[3] + " veces";//# de veces
-        sanctionButton.disabled = false;
-        caseSearch2.style.display = '';
+      if (response.length == 0) {
+        hiddenAllIssues()
+        caseSearch1.style.display = ''
+      } else {
+        hiddenAllIssues()
+        titleUser.innerText = response[0] //Titulo del evento
+        hourUser.innerText = timeSlot() //Hora del evento
+        nameUser.innerText = response[1] //Nombre inasistente
+        emailUser.innerText = response[2] //Correo inasistente
+        timesUser.innerText = response[3] == 1 ? response[3] + " vez": response[3] + " veces" //# de veces
+        sanctionButton.disabled = false
+        caseSearch2.style.display = ''
       }
-      waiting.style.display = 'none';
+      waiting.style.display = 'none'
     }
     function sanction() {//Sancionar
-      sanctionButton.disabled = true;
-      waiting.style.display = 'flex';
-      let toSend = [service.value, emailUser.textContent, hour.value, nameUser.textContent, date.value + 'T00:00:01'];
-      google.script.run.withSuccessHandler(function(response){
-        hiddenAllIssues();
-        document.getElementById('caseSanction_' + response).style.display = '';
-        waiting.style.display = 'none';
-      }).penalize(toSend);
-      toSend = null;
+      sanctionButton.disabled = true
+      waiting.style.display = 'flex'
+      let toSend = [service.value, emailUser.textContent, hour.value, nameUser.textContent, date.value + 'T00:00:01']
+      console.log(toSend)
+      google.script.run.withSuccessHandler(function(response) {
+        hiddenAllIssues()
+        document.getElementById('caseSanction_' + response).style.display = ''
+        waiting.style.display = 'none'
+      }).penalize(toSend)
+      toSend = null
     }
     function timeSlot() {
-      let answer = null;
-      let initialHour = hour.value;
-      let meridian = initialHour.slice(5,11);
-      let currentService = service.value;
-      let endTime = parseInt(initialHour.slice(0,2));
+      let answer = null
+      let initialHour = hour.value
+      let meridian = initialHour.slice(5,11)
+      let currentService = service.value
+      let endTime = parseInt(initialHour.slice(0,2))
       if (initialHour.slice(3,4) == '3') {
-        endTime = endTime + 1;
-        meridian = endTime == 12 ? ' m.' : meridian;
-        endTime = endTime < 10 ? '0' + endTime : endTime;
-        answer = endTime < 13 ? endTime + ':00' : (endTime - 1) + ':00';
+        endTime = endTime + 1
+        meridian = endTime == 12 ? ' m.' : meridian
+        endTime = endTime < 10 ? '0' + endTime : endTime
+        answer = endTime < 13 ? endTime + ':00' : (endTime - 1) + ':00'
       } else {
-        meridian = endTime == 12 ? ' p.m.' : meridian;
-        endTime = endTime < 10 ? '0' + endTime : endTime;
-        answer = endTime +':30';
+        meridian = endTime == 12 ? ' p.m.' : meridian
+        endTime = endTime < 10 ? '0' + endTime : endTime
+        answer = endTime +':30'
       }
-      return initialHour.slice(0,5) + ' - ' + answer.toString() + meridian;
+      return initialHour.slice(0,5) + ' - ' + answer.toString() + meridian
     }
     function serviceTest(service) {//Definir franjas horarias
-      var day = new Date(date.value + 'T00:00:01').getDay();
-      hour.options.length = 0;
-      search.disabled = true;
+      var day = new Date(date.value + 'T00:00:01').getDay()
+      hour.options.length = 0
+      search.disabled = true
       if(day == 0 || day == 6){
-        const newOption = document.createElement("option");
-        newOption.text = 'No hay servicio los fines de semana.';
-        hour.add(newOption);
-      }else{
-        ans = schedules[service][day - 1]
+        const newOption = document.createElement("option")
+        newOption.text = 'No hay servicio los fines de semana.'
+        hour.add(newOption)
+      } else {
+        ans = dataServices[0][service][day - 1]
         ans.forEach(function(textOption) {
           var newOption = document.createElement("option")
           newOption.text = textOption
           hour.add(newOption)
-        });
+        })
         if (!ans[0]) {
           hour.options[0].style.display = 'none'
           search.disabled = false
