@@ -1,11 +1,7 @@
 # 📅 Aplicativo de Citas - Servicios de Apoyo
-
-**Manual de Usuario - Versión 2025**  
 **Universidad Nacional de Colombia - Sede Bogotá**  
-Facultad de Ingeniería  
+Facultad de Ingeniería
 Vicedecanatura de Investigación y Extensión  
-Desarrollado por: Yovany Vargas  
-Ingeniero Mecatrónico
 
 ---
 
@@ -71,5 +67,5 @@ El sistema permite ajustes flexibles mediante la base de datos general:
 - Implementar nuevos servicios de apoyo con facilidad.
 
 ---
-
-📬 Contacto: vinnyext_fibog@unal.edu.co
+By Yovany Vargas
+📬 Contacto: yvargasgu@unal.edu.co
