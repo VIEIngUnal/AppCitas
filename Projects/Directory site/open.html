@@ -267,12 +267,15 @@
   var intervaloID = setInterval(reload, 6000)
   const modalEdit = document.getElementById('modalEdit')
   userValid()
+  
   function userValid() {
       google.script.run.withSuccessHandler(function(data) {
           url = data
           if (url.length > 1) {
               fetch(url).then(response => response.json()).then(data => {
-                url = null; datos = data; loader.style.display = 'none'
+                url = null
+                datos = data
+                loader.style.display = 'none'
               })
           } else {
               document.getElementById('email').textContent = url[0]
