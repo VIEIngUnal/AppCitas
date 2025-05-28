@@ -67,5 +67,5 @@ El sistema permite ajustes flexibles mediante la base de datos general:
 - Implementar nuevos servicios de apoyo con facilidad.
 
 ---
-By Yovany Vargas
+By Yovany Vargas  
 📬 Contacto: yvargasgu@unal.edu.co
