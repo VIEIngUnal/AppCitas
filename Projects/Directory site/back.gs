@@ -4,7 +4,8 @@ const generalDataBase = SpreadsheetApp.openById('1REbxAvc83wme_uIxwxmjEZvBpSX9Sl
 const directorySheet = generalDataBase.getSheetByName('Directorio')
 var validEmailsConsult = directorySheet.getRange('2:2').getValues().flat().filter(Boolean)[0].split(', ')
 var validEmailsEdit = directorySheet.getRange('4:4').getValues().flat().filter(Boolean)[0].split(', ')
-const link = 'https://script.google.com/macros/s/AKfycbym4nw-_eFERadjLo-Judyxjpmo7a9yFsw27Y5CNLmKK8EcUNKVRdwzNHYvvckUjvx7/exec'
+const scriptProperties = PropertiesService.getScriptProperties();
+const link = scriptProperties.getProperty("link");
 
 function doGet() {
   let today = new Date()
